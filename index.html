@@ -425,9 +425,14 @@
     }
 
     function closeAuthModal() {
-      document.getElementById('auth-modal').classList.add('hidden');
+    const modal = document.getElementById('auth-modal');
+    if (modal) {
+        modal.classList.add('hidden');
     }
-
+}
+    window.openAuthModal = openAuthModal;
+    window.closeAuthModal = closeAuthModal;
+    
     async function handleAuthSubmit(e) {
       e.preventDefault();
       const mode = document.getElementById('auth-mode').value;
