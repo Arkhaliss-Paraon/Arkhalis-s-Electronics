@@ -27,7 +27,7 @@
               surface: '#F8FAFC',
               card: '#FFFFFF',
               border: '#E2E8F0',
-              accent: '#2563EB', // Tech Electric Blue
+              accent: '#2563EB',
               accentHover: '#1D4ED8',
               cyan: '#0284C7',
               text: '#0F172A',
@@ -39,13 +39,11 @@
     }
   </script>
   <style>
-    /* Global Rule to apply M PLUS Rounded 1c to all headings */
     h1, h2, h3, h4, h5, h6 {
       font-family: 'M PLUS Rounded 1c', sans-serif !important;
     }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-brand-bg text-brand-text min-h-screen flex flex-col font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
@@ -53,7 +51,6 @@
   <!-- 1. HEADER -->
   <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-      <!-- Logo -->
       <a href="#" class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-blue-700 to-sky-500 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20">
           A
@@ -72,7 +69,6 @@
         <a href="#dashboard" id="nav-dashboard" class="hidden text-blue-600 hover:underline transition">Dashboard</a>
       </nav>
 
-      <!-- User Auth State Buttons -->
       <div class="flex items-center gap-4">
         <div id="auth-guest" class="flex gap-3">
           <button id="loginBtn" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Login</button>
@@ -90,7 +86,6 @@
     <!-- 3. HERO & CTA -->
     <section id="home" class="py-20 bg-slate-50 border-b border-slate-200 relative overflow-hidden">
       <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
-        <!-- 2/3 Content Column -->
         <div class="lg:col-span-2 space-y-8">
           <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold tracking-wide">
             <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span> PREMIER COMPONENT HUB
@@ -111,7 +106,6 @@
           </div>
         </div>
 
-        <!-- 1/3 Visual Focal Column -->
         <div class="lg:col-span-1">
           <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xl space-y-4">
             <div class="aspect-square rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden group">
@@ -139,13 +133,12 @@
         </div>
       </div>
 
-      <!-- Products Grid -->
       <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div class="col-span-full py-12 text-center text-slate-400">Loading catalog...</div>
       </div>
     </section>
 
-    <!-- DASHBOARD SECTION (FOR BUYERS & SELLERS) -->
+    <!-- DASHBOARD SECTION -->
     <section id="dashboard" class="py-16 bg-slate-50 border-t border-slate-200 hidden">
       <div class="max-w-7xl mx-auto px-6 space-y-12">
         <div class="flex justify-between items-center border-b border-slate-200 pb-6">
@@ -164,9 +157,15 @@
               <input type="number" step="0.01" id="prod-price" placeholder="Price (PHP)" required class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
               <input type="text" id="prod-category" placeholder="Category (e.g. Microcontrollers, Sensors)" required class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
               <input type="number" id="prod-stock" placeholder="Stock Quantity" required class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
-              <input type="url" id="prod-image" placeholder="Image URL (Direct link)" required class="md:col-span-2 bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+              
+              <!-- Direct File Upload Field -->
+              <div class="md:col-span-2">
+                <label class="text-xs text-slate-600 font-medium block mb-1">Product Photo</label>
+                <input type="file" id="prod-image-file" accept="image/*" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+              </div>
+
               <textarea id="prod-desc" placeholder="Product Description & Technical Specifications..." required class="md:col-span-2 bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900 h-24"></textarea>
-              <button type="submit" class="md:col-span-2 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-sm">Publish Product</button>
+              <button type="submit" id="submit-prod-btn" class="md:col-span-2 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-sm">Publish Product</button>
             </form>
           </div>
 
@@ -193,7 +192,7 @@
           </div>
         </div>
 
-        <!-- BUYER PANEL: PURCHASE HISTORY -->
+        <!-- BUYER PANEL -->
         <div id="buyer-panel" class="space-y-4">
           <h3 class="text-xl font-bold text-slate-900">My Purchase History</h3>
           <div class="bg-white border border-slate-200 rounded-xl overflow-x-auto shadow-sm">
@@ -346,7 +345,6 @@
         <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-sm">Submit Review</button>
       </form>
 
-      <!-- Existing Reviews List -->
       <div class="mt-6 pt-6 border-t border-slate-200">
         <h4 class="text-sm font-bold text-slate-900 mb-3">Customer Feedback</h4>
         <div id="modal-reviews-list" class="space-y-3 max-h-48 overflow-y-auto pr-2"></div>
@@ -437,12 +435,8 @@
       const loginBtn = document.getElementById('loginBtn');
       const registerBtn = document.getElementById('registerBtn');
 
-      if (loginBtn) {
-        loginBtn.addEventListener('click', () => openAuthModal('login'));
-      }
-      if (registerBtn) {
-        registerBtn.addEventListener('click', () => openAuthModal('register'));
-      }
+      if (loginBtn) loginBtn.addEventListener('click', () => openAuthModal('login'));
+      if (registerBtn) registerBtn.addEventListener('click', () => openAuthModal('register'));
     });
     
     async function handleAuthSubmit(e) {
@@ -550,26 +544,63 @@
       }
     }
 
+    // UPDATED FUNCTION: Direct image upload to Supabase Storage
     async function handleCreateProduct(e) {
       e.preventDefault();
       if (!currentUser || currentUserProfile?.role !== 'seller') return alert('Only sellers can list products.');
 
-      const newProd = {
-        seller_id: currentUser.id,
-        title: document.getElementById('prod-title').value,
-        price: parseFloat(document.getElementById('prod-price').value),
-        category: document.getElementById('prod-category').value,
-        stock: parseInt(document.getElementById('prod-stock').value),
-        image_url: document.getElementById('prod-image').value,
-        description: document.getElementById('prod-desc').value
-      };
+      const submitBtn = document.getElementById('submit-prod-btn');
+      const fileInput = document.getElementById('prod-image-file');
+      const file = fileInput.files[0];
 
-      const { error } = await supabase.from('products').insert([newProd]);
-      if (error) return alert(error.message);
+      if (!file) return alert('Please choose an image file to upload.');
 
-      alert('Product listed successfully!');
-      document.getElementById('add-product-form').reset();
-      fetchProducts();
+      try {
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Uploading Photo...';
+
+        // 1. Generate unique file name and path
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `products/${fileName}`;
+
+        // 2. Upload file to Supabase Storage bucket ('product-images')
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw new Error('Image Upload Failed: ' + uploadError.message);
+
+        // 3. Get Public URL of the uploaded image
+        const { data: publicUrlData } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        const imageUrl = publicUrlData.publicUrl;
+
+        // 4. Save product record with generated public image URL
+        const newProd = {
+          seller_id: currentUser.id,
+          title: document.getElementById('prod-title').value,
+          price: parseFloat(document.getElementById('prod-price').value),
+          category: document.getElementById('prod-category').value,
+          stock: parseInt(document.getElementById('prod-stock').value),
+          image_url: imageUrl,
+          description: document.getElementById('prod-desc').value
+        };
+
+        const { error: dbError } = await supabase.from('products').insert([newProd]);
+        if (dbError) throw dbError;
+
+        alert('Product listed successfully!');
+        document.getElementById('add-product-form').reset();
+        fetchProducts();
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Publish Product';
+      }
     }
 
     async function loadSellerSales() {
@@ -669,94 +700,6 @@
           <p class="text-xs text-slate-600">${r.comment}</p>
         </div>
       `).join('');
-    }
-
-    // CHATBOT CODE
-    const GEMINI_API_KEY = 'AQ.Ab8RN6KyYsvGpUr83-plJFJH3iAz3ceMEr5V-5q62262QwSr8g';
-
-    function toggleChatWindow() {
-      const chatWindow = document.getElementById('chat-window');
-      chatWindow.classList.toggle('hidden');
-    }
-
-    function appendMessage(text, isUser) {
-      const container = document.getElementById('chat-messages');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = isUser 
-        ? "bg-blue-600 text-white p-3 rounded-lg max-w-[80%] self-end shadow-sm"
-        : "bg-slate-100 text-slate-800 p-3 rounded-lg max-w-[80%] self-start shadow-sm";
-      msgDiv.innerText = text;
-      container.appendChild(msgDiv);
-      container.scrollTop = container.scrollHeight;
-      return msgDiv;
-    }
-
-    async function fetchProductCatalog() {
-      try {
-        const { data: products, error } = await supabase
-          .from('products')
-          .select('name, price, description');
-
-        if (error || !products || products.length === 0) {
-          return "No specific catalog items available at the moment.";
-        }
-
-        return products.map(p => `- ${p.name} ($${p.price}): ${p.description}`).join('\n');
-      } catch (err) {
-        console.error("Catalog Fetch Error:", err);
-        return "Catalog temporarily unavailable.";
-      }
-    }
-
-    async function handleSendChat() {
-      const input = document.getElementById('chat-input');
-      const userText = input.value.trim();
-      if (!userText) return;
-
-      appendMessage(userText, true);
-      input.value = '';
-
-      const loadingMsg = appendMessage("Checking our store recommendations...", false);
-
-      try {
-        const catalog = await fetchProductCatalog();
-        const systemContext = `
-  You are a friendly, expert AI sales assistant for our electronics store.
-  Your goal is to help buyers find the best products, answer their questions, and recommend items based on their budget or needs.
-
-  STORE CATALOG:
-  ${catalog}
-
-  INSTRUCTIONS:
-  1. Recommend items ONLY from the catalog above.
-  2. Highlight key features and prices when making recommendations.
-  3. Keep answers concise, helpful, and under 3-4 sentences.
-  4. If a requested product isn't in the catalog, politely let the user know and offer an alternative from the catalog.
-  `;
-
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [
-                { text: systemContext },
-                { text: `User Inquiry: ${userText}` }
-              ]
-            }]
-          })
-        });
-
-        const data = await response.json();
-        if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-          loadingMsg.innerText = data.candidates[0].content.parts[0].text;
-        } else {
-          loadingMsg.innerText = "Sorry, I couldn't generate a recommendation right now.";
-        }
-      } catch (error) {
-        console.error("Gemini Error:", error);
-        loadingMsg.innerText = "Error connecting to sales assistant.";
-      }
     }
   </script>
 </body>
