@@ -59,8 +59,8 @@
       <!-- User Auth State Buttons -->
       <div class="flex items-center gap-4">
         <div id="auth-guest" class="flex gap-3">
-          <button onclick="openAuthModal('login')" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Login</button>
-          <button onclick="openAuthModal('register')" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm">Register</button>
+          <button id="loginBtn" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Login</button>
+          <button id="registerBtn" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm">Register</button>
         </div>
         <div id="auth-user" class="hidden flex items-center gap-4">
           <span id="user-display" class="text-xs bg-slate-100 text-blue-700 px-3 py-1.5 rounded-full font-mono border border-slate-200 font-semibold"></span>
@@ -432,6 +432,18 @@
 }
     window.openAuthModal = openAuthModal;
     window.closeAuthModal = closeAuthModal;
+
+    document.addEventListener('DOMContentLoaded', () => {
+  const loginBtn = document.getElementById('loginBtn');
+  const registerBtn = document.getElementById('registerBtn');
+
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => openAuthModal('login'));
+  }
+  if (registerBtn) {
+    registerBtn.addEventListener('click', () => openAuthModal('register'));
+  }
+});
     
     async function handleAuthSubmit(e) {
       e.preventDefault();
