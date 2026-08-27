@@ -5,12 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arkhalis's Electronics | Next-Gen Circuitry & Components</title>
   
+  <!-- Google Fonts: Plus Jakarta Sans, JetBrains Mono & M PLUS Rounded 1c -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            heading: ['"M PLUS Rounded 1c"', 'sans-serif'],
+          },
           colors: {
             brand: {
               bg: '#FFFFFF',
@@ -28,6 +38,12 @@
       }
     }
   </script>
+  <style>
+    /* Global Rule to apply M PLUS Rounded 1c to all headings */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'M PLUS Rounded 1c', sans-serif !important;
+    }
+  </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -42,7 +58,7 @@
         <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-blue-700 to-sky-500 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20">
           A
         </div>
-        <span class="text-xl font-extrabold tracking-wider text-slate-900">
+        <span class="text-xl font-extrabold tracking-wider text-slate-900 font-heading">
           ARKHALIS'S <span class="text-blue-600 font-bold">ELECTRONICS</span>
         </span>
       </a>
@@ -230,7 +246,7 @@
   <footer id="contact" class="bg-slate-900 text-slate-300 text-sm border-t border-slate-800">
     <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
       <div>
-        <div class="text-white font-bold text-lg mb-4">Arkhalis's Electronics</div>
+        <div class="text-white font-bold text-lg mb-4 font-heading">Arkhalis's Electronics</div>
         <p class="text-xs text-slate-400 leading-relaxed">
           The ultimate digital platform for buying and selling high-grade electronic components in the Philippines.
         </p>
@@ -338,16 +354,12 @@
     </div>
   </div>
 
-
-  
-
   <!-- APPLICATION JAVASCRIPT LOGIC -->
   <script>
     const SUPABASE_URL = 'https://tmsgqszbznukgowfwcnk.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc2dxc3piem51a2dvd2Z3Y25rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3ODQzNDQsImV4cCI6MjEwMzM2MDM0NH0.psg4eFLo6AdoCTCFJ7M1ZdqVzun81xgzz_ne5TKGWww';
     
-    // Explicitly reference window.supabase to resolve initialization error
-   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     let currentUserProfile = null;
@@ -413,25 +425,25 @@
     }
 
     function closeAuthModal() {
-    const modal = document.getElementById('auth-modal');
-    if (modal) {
-        modal.classList.add('hidden');
+      const modal = document.getElementById('auth-modal');
+      if (modal) {
+          modal.classList.add('hidden');
+      }
     }
-}
     window.openAuthModal = openAuthModal;
     window.closeAuthModal = closeAuthModal;
 
     document.addEventListener('DOMContentLoaded', () => {
-  const loginBtn = document.getElementById('loginBtn');
-  const registerBtn = document.getElementById('registerBtn');
+      const loginBtn = document.getElementById('loginBtn');
+      const registerBtn = document.getElementById('registerBtn');
 
-  if (loginBtn) {
-    loginBtn.addEventListener('click', () => openAuthModal('login'));
-  }
-  if (registerBtn) {
-    registerBtn.addEventListener('click', () => openAuthModal('register'));
-  }
-});
+      if (loginBtn) {
+        loginBtn.addEventListener('click', () => openAuthModal('login'));
+      }
+      if (registerBtn) {
+        registerBtn.addEventListener('click', () => openAuthModal('register'));
+      }
+    });
     
     async function handleAuthSubmit(e) {
       e.preventDefault();
@@ -488,7 +500,7 @@
                 <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">${p.category}</span>
                 <span class="text-xs text-slate-500 font-medium">Stock: ${p.stock}</span>
               </div>
-              <h3 class="font-bold text-slate-900 text-lg">${p.title}</h3>
+              <h3 class="font-bold text-slate-900 text-lg font-heading">${p.title}</h3>
               <p class="text-slate-600 text-xs line-clamp-2">${p.description}</p>
             </div>
           </div>
@@ -658,12 +670,8 @@
         </div>
       `).join('');
     }
-    // ... all your existing code (checkUserSession, etc.) ...
 
-
-    // ==========================================
-    // PASTE NEW CHATBOT CODE BELOW HERE
-    // ==========================================
+    // CHATBOT CODE
     const GEMINI_API_KEY = 'AQ.Ab8RN6KyYsvGpUr83-plJFJH3iAz3ceMEr5V-5q62262QwSr8g';
 
     function toggleChatWindow() {
@@ -750,7 +758,6 @@
         loadingMsg.innerText = "Error connecting to sales assistant.";
       }
     }
-
   </script>
 </body>
 </html>
