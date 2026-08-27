@@ -71,7 +71,7 @@
   </header>
 
   <main class="flex-grow">
-    <!-- 3. HERO & CTA (Rule of Thirds: Light Theme Accent) -->
+    <!-- 3. HERO & CTA -->
     <section id="home" class="py-20 bg-slate-50 border-b border-slate-200 relative overflow-hidden">
       <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
         <!-- 2/3 Content Column -->
@@ -111,7 +111,6 @@
       </div>
     </section>
 
-    <!-- 6. FEATURES & BODY SECTION -->
     <!-- STORE SECTION -->
     <section id="store" class="py-16 max-w-7xl mx-auto px-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
@@ -227,7 +226,7 @@
     </section>
   </main>
 
-  <!-- 4. SITEMAP & 5. FOOTER -->
+  <!-- FOOTER -->
   <footer id="contact" class="bg-slate-900 text-slate-300 text-sm border-t border-slate-800">
     <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
       <div>
@@ -358,7 +357,9 @@
   <script>
     const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
     const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Explicitly reference window.supabase to resolve initialization error
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     let currentUserProfile = null;
@@ -370,11 +371,16 @@
     });
 
     async function checkUserSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (session && !error) {
         currentUser = session.user;
         const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
-        currentUserProfile = profile;
+        
+        currentUserProfile = profile || {
+          full_name: currentUser.user_metadata?.full_name,
+          gcash_number: currentUser.user_metadata?.gcash_number,
+          role: currentUser.user_metadata?.role || 'buyer'
+        };
         updateUIForLoggedInUser();
       } else {
         updateUIForLoggedOutUser();
@@ -388,7 +394,7 @@
       document.getElementById('user-display').innerText = `${currentUserProfile?.full_name || currentUser.email} (${currentUserProfile?.role || 'buyer'})`;
       
       document.getElementById('dashboard').classList.remove('hidden');
-      document.getElementById('dashboard-role-badge').innerText = `ROLE: ${currentUserProfile?.role?.toUpperCase() || 'BUYER'} | GCASH: ${currentUserProfile?.gcash_number || 'N/A'}`;
+      document.getElementById('dashboard-role-badge').innerText = `ROLE: ${(currentUserProfile?.role || 'BUYER').toUpperCase()} | GCASH: ${currentUserProfile?.gcash_number || 'N/A'}`;
       
       if (currentUserProfile?.role === 'seller') {
         document.getElementById('seller-panel').classList.remove('hidden');
@@ -442,7 +448,7 @@
         });
 
         if (error) return alert(error.message);
-        alert('Registration successful! Check your email or sign in.');
+        alert('Registration successful! Check your email to confirm or sign in.');
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) return alert(error.message);
