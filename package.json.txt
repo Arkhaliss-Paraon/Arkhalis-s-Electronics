@@ -1,0 +1,12 @@
+{
+  "name": "arkhalis-electronics",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "serve ."
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.8",
+    "axios": "^1.6.8"
+  }
+}

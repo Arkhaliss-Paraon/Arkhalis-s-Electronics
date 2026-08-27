@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/create-checkout", "destination": "/api/create-checkout.js" },
+    { "source": "/api/paymongo-webhook", "destination": "/api/paymongo-webhook.js" }
+  ]
+}

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arkhalis's Electronics | Next-Gen Circuitry & Components</title>
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#FFFFFF',
+              surface: '#F8FAFC',
+              card: '#FFFFFF',
+              border: '#E2E8F0',
+              accent: '#2563EB', // Tech Electric Blue
+              accentHover: '#1D4ED8',
+              cyan: '#0284C7',
+              text: '#0F172A',
+              muted: '#64748B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-brand-bg text-brand-text min-h-screen flex flex-col font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
+
+  <!-- 1. HEADER -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-blue-700 to-sky-500 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20">
+          A
+        </div>
+        <span class="text-xl font-extrabold tracking-wider text-slate-900">
+          ARKHALIS'S <span class="text-blue-600 font-bold">ELECTRONICS</span>
+        </span>
+      </a>
+
+      <!-- 2. NAVIGATION LINKS -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+        <a href="#home" class="hover:text-blue-600 transition">Home</a>
+        <a href="#store" class="hover:text-blue-600 transition">Store Page</a>
+        <a href="#about" class="hover:text-blue-600 transition">About Us</a>
+        <a href="#contact" class="hover:text-blue-600 transition">Contacts</a>
+        <a href="#dashboard" id="nav-dashboard" class="hidden text-blue-600 hover:underline transition">Dashboard</a>
+      </nav>
+
+      <!-- User Auth State Buttons -->
+      <div class="flex items-center gap-4">
+        <div id="auth-guest" class="flex gap-3">
+          <button onclick="openAuthModal('login')" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Login</button>
+          <button onclick="openAuthModal('register')" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm">Register</button>
+        </div>
+        <div id="auth-user" class="hidden flex items-center gap-4">
+          <span id="user-display" class="text-xs bg-slate-100 text-blue-700 px-3 py-1.5 rounded-full font-mono border border-slate-200 font-semibold"></span>
+          <button onclick="handleLogout()" class="px-3 py-1.5 text-xs text-red-600 hover:text-red-700 border border-red-200 rounded-lg bg-red-50 hover:bg-red-100 transition font-medium">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow">
+    <!-- 3. HERO & CTA (Rule of Thirds: Light Theme Accent) -->
+    <section id="home" class="py-20 bg-slate-50 border-b border-slate-200 relative overflow-hidden">
+      <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
+        <!-- 2/3 Content Column -->
+        <div class="lg:col-span-2 space-y-8">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold tracking-wide">
+            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span> PREMIER COMPONENT HUB
+          </div>
+          <h1 class="text-4xl md:text-6xl font-black tracking-tight text-slate-900 leading-tight">
+            High-Performance <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-sky-500">Electronics & Silicon</span> Solutions.
+          </h1>
+          <p class="text-slate-600 text-lg max-w-2xl font-normal leading-relaxed">
+            Source genuine microcontrollers, custom ICs, sensors, and power modules directly from verified engineering distributors or sell your custom circuit creations.
+          </p>
+          <div class="flex flex-wrap gap-4 pt-2">
+            <a href="#store" class="px-8 py-4 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-600/20">
+              Browse Store Catalog
+            </a>
+            <button onclick="openAuthModal('register')" class="px-8 py-4 rounded-xl border border-slate-300 hover:border-blue-600 text-slate-800 font-semibold transition bg-white shadow-sm">
+              Become a Seller
+            </button>
+          </div>
+        </div>
+
+        <!-- 1/3 Visual Focal Column -->
+        <div class="lg:col-span-1">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xl space-y-4">
+            <div class="aspect-square rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden group">
+              <i class="fa-solid fa-microchip text-7xl text-blue-600 group-hover:scale-110 transition duration-500"></i>
+              <span class="mt-4 font-mono text-xs font-semibold text-slate-500">ARK-9000 NEURAL PROCESSOR</span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-slate-600 font-medium">Featured Component</span>
+              <span class="text-blue-600 font-bold font-mono text-base">₱1,450.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. FEATURES & BODY SECTION -->
+    <!-- STORE SECTION -->
+    <section id="store" class="py-16 max-w-7xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
+        <div>
+          <h2 class="text-3xl font-bold text-slate-900">Featured Components & Devices</h2>
+          <p class="text-slate-500 text-sm mt-1">Directly available with instant GCash and Card Checkout.</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 border border-slate-200 text-blue-700">All Products</button>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="col-span-full py-12 text-center text-slate-400">Loading catalog...</div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD SECTION (FOR BUYERS & SELLERS) -->
+    <section id="dashboard" class="py-16 bg-slate-50 border-t border-slate-200 hidden">
+      <div class="max-w-7xl mx-auto px-6 space-y-12">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900">User Control Center</h2>
+            <p id="dashboard-role-badge" class="text-xs text-blue-600 font-mono font-bold mt-1"></p>
+          </div>
+        </div>
+
+        <!-- SELLER PANEL: POST PRODUCT -->
+        <div id="seller-panel" class="hidden space-y-8">
+          <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-900 mb-4"><i class="fa-solid fa-plus text-blue-600 mr-2"></i>Post New Component for Sale</h3>
+            <form id="add-product-form" onsubmit="handleCreateProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input type="text" id="prod-title" placeholder="Product Title" required class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+              <input type="number" step="0.01" id="prod-price" placeholder="Price (PHP)" required class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+              <input type="text" id="prod-category" placeholder="Category (e.g. Microcontrollers, Sensors)" required class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+              <input type="number" id="prod-stock" placeholder="Stock Quantity" required class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+              <input type="url" id="prod-image" placeholder="Image URL (Direct link)" required class="md:col-span-2 bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+              <textarea id="prod-desc" placeholder="Product Description & Technical Specifications..." required class="md:col-span-2 bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900 h-24"></textarea>
+              <button type="submit" class="md:col-span-2 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-sm">Publish Product</button>
+            </form>
+          </div>
+
+          <!-- Sales History -->
+          <div class="space-y-4">
+            <h3 class="text-xl font-bold text-slate-900">Seller Sales History</h3>
+            <div class="bg-white border border-slate-200 rounded-xl overflow-x-auto shadow-sm">
+              <table class="w-full text-left text-sm text-slate-700">
+                <thead class="bg-slate-100 text-xs text-slate-500 uppercase font-mono border-b border-slate-200">
+                  <tr>
+                    <th class="p-4">Order ID</th>
+                    <th class="p-4">Item</th>
+                    <th class="p-4">Qty</th>
+                    <th class="p-4">Total</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4">Date</th>
+                  </tr>
+                </thead>
+                <tbody id="seller-sales-rows">
+                  <tr><td colspan="6" class="p-4 text-center text-slate-400">No sales recorded yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- BUYER PANEL: PURCHASE HISTORY -->
+        <div id="buyer-panel" class="space-y-4">
+          <h3 class="text-xl font-bold text-slate-900">My Purchase History</h3>
+          <div class="bg-white border border-slate-200 rounded-xl overflow-x-auto shadow-sm">
+            <table class="w-full text-left text-sm text-slate-700">
+              <thead class="bg-slate-100 text-xs text-slate-500 uppercase font-mono border-b border-slate-200">
+                <tr>
+                  <th class="p-4">Order ID</th>
+                  <th class="p-4">Product</th>
+                  <th class="p-4">Amount</th>
+                  <th class="p-4">Payment Status</th>
+                  <th class="p-4">Date</th>
+                </tr>
+              </thead>
+              <tbody id="buyer-order-rows">
+                <tr><td colspan="5" class="p-4 text-center text-slate-400">No orders placed yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT US SECTION -->
+    <section id="about" class="py-16 border-t border-slate-200 max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-3xl font-bold text-slate-900 mb-4">Empowering Philippine Electronics Engineering</h2>
+          <p class="text-slate-600 leading-relaxed mb-4">
+            Arkhalis's Electronics provides a streamlined marketplace for hardware engineers, IoT developers, and hobbyists. We bridge local builders with authentic electronic components.
+          </p>
+          <div class="grid grid-cols-2 gap-4 pt-4">
+            <div class="border border-slate-200 p-4 rounded-lg bg-slate-50">
+              <div class="text-blue-600 font-bold text-2xl font-mono">100%</div>
+              <div class="text-xs text-slate-500 mt-1">Authentic Hardware</div>
+            </div>
+            <div class="border border-slate-200 p-4 rounded-lg bg-slate-50">
+              <div class="text-blue-600 font-bold text-2xl font-mono">GCash</div>
+              <div class="text-xs text-slate-500 mt-1">Native PayMongo Integration</div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-slate-100 p-8 rounded-2xl border border-slate-200 flex items-center justify-center">
+          <i class="fa-solid fa-microchip text-9xl text-slate-300"></i>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 4. SITEMAP & 5. FOOTER -->
+  <footer id="contact" class="bg-slate-900 text-slate-300 text-sm border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <div class="text-white font-bold text-lg mb-4">Arkhalis's Electronics</div>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          The ultimate digital platform for buying and selling high-grade electronic components in the Philippines.
+        </p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4 text-xs tracking-wider uppercase">Sitemap</h4>
+        <ul class="space-y-2 text-xs text-slate-400">
+          <li><a href="#home" class="hover:text-blue-400 transition">Home</a></li>
+          <li><a href="#store" class="hover:text-blue-400 transition">Store Catalog</a></li>
+          <li><a href="#about" class="hover:text-blue-400 transition">About Us</a></li>
+          <li><a href="#contact" class="hover:text-blue-400 transition">Contacts</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4 text-xs tracking-wider uppercase">Payments Supported</h4>
+        <ul class="space-y-2 text-xs text-slate-400">
+          <li><i class="fa-solid fa-mobile-screen text-blue-400 mr-2"></i>GCash via PayMongo</li>
+          <li><i class="fa-solid fa-credit-card text-blue-400 mr-2"></i>Visa / Mastercard</li>
+          <li><i class="fa-solid fa-wallet text-blue-400 mr-2"></i>Maya</li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4 text-xs tracking-wider uppercase">Contact Support</h4>
+        <p class="text-xs text-slate-400 mb-2">Email: support@arkhaliselectronics.ph</p>
+        <p class="text-xs text-slate-400">Location: Manila / Tagum, Philippines</p>
+      </div>
+    </div>
+    <div class="border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+      &copy; 2026 Arkhalis's Electronics. All rights reserved. Powered by Vercel & Supabase.
+    </div>
+  </footer>
+
+  <!-- AUTH MODAL -->
+  <div id="auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 w-full max-w-md p-6 rounded-2xl relative shadow-2xl">
+      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 id="modal-title" class="text-xl font-bold text-slate-900 mb-6">Account Authentication</h3>
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        <input type="hidden" id="auth-mode" value="login">
+        
+        <div id="register-fields" class="space-y-4 hidden">
+          <div>
+            <label class="text-xs text-slate-600 font-medium">Full Name</label>
+            <input type="text" id="auth-fullname" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+          </div>
+          <div>
+            <label class="text-xs text-slate-600 font-medium">GCash Number</label>
+            <input type="text" id="auth-gcash" placeholder="0917XXXXXXX" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+          </div>
+          <div>
+            <label class="text-xs text-slate-600 font-medium">Account Type</label>
+            <select id="auth-role" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+              <option value="buyer">Buyer</option>
+              <option value="seller">Seller / Vendor</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-600 font-medium">Email Address</label>
+          <input type="email" id="auth-email" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+        </div>
+        <div>
+          <label class="text-xs text-slate-600 font-medium">Password</label>
+          <input type="password" id="auth-password" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900">
+        </div>
+
+        <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition mt-2 shadow-sm">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PRODUCT REVIEW MODAL -->
+  <div id="review-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 w-full max-w-lg p-6 rounded-2xl relative shadow-2xl">
+      <button onclick="closeReviewModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-xl font-bold text-slate-900 mb-1">Submit Product Review</h3>
+      <p id="review-product-title" class="text-xs font-semibold text-blue-600 mb-4"></p>
+      
+      <form onsubmit="handleReviewSubmit(event)" class="space-y-4">
+        <input type="hidden" id="review-product-id">
+        <div>
+          <label class="text-xs text-slate-600 font-medium block mb-2">Rating (Stars)</label>
+          <div class="flex gap-2 text-2xl text-amber-400" id="star-selector">
+            <i class="fa-regular fa-star cursor-pointer" onclick="setStarRating(1)"></i>
+            <i class="fa-regular fa-star cursor-pointer" onclick="setStarRating(2)"></i>
+            <i class="fa-regular fa-star cursor-pointer" onclick="setStarRating(3)"></i>
+            <i class="fa-regular fa-star cursor-pointer" onclick="setStarRating(4)"></i>
+            <i class="fa-regular fa-star cursor-pointer" onclick="setStarRating(5)"></i>
+          </div>
+          <input type="hidden" id="review-rating" value="5">
+        </div>
+        <div>
+          <label class="text-xs text-slate-600 font-medium">Your Feedback</label>
+          <textarea id="review-comment" required placeholder="Describe your experience with this electrical component..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 focus:bg-white outline-none text-slate-900 h-24"></textarea>
+        </div>
+        <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-sm">Submit Review</button>
+      </form>
+
+      <!-- Existing Reviews List -->
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <h4 class="text-sm font-bold text-slate-900 mb-3">Customer Feedback</h4>
+        <div id="modal-reviews-list" class="space-y-3 max-h-48 overflow-y-auto pr-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VOICEFLOW AI CHATBOT EMBED -->
+  <script type="text/javascript">
+    (function(d, t) {
+        var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+        v.onload = function() {
+          window.voiceflow.chat.load({
+            verify: { projectID: 'YOUR_VOICEFLOW_PROJECT_ID' },
+            url: 'https://general-runtime.voiceflow.com',
+            versionID: 'production'
+          });
+        }
+        v.src = "https://cdn.voiceflow.com/widget/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
+    })(document, 'script');
+  </script>
+
+  <!-- APPLICATION JAVASCRIPT LOGIC -->
+  <script>
+    const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let currentUserProfile = null;
+    let selectedRating = 5;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await checkUserSession();
+      await fetchProducts();
+    });
+
+    async function checkUserSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        currentUser = session.user;
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+        currentUserProfile = profile;
+        updateUIForLoggedInUser();
+      } else {
+        updateUIForLoggedOutUser();
+      }
+    }
+
+    function updateUIForLoggedInUser() {
+      document.getElementById('auth-guest').classList.add('hidden');
+      document.getElementById('auth-user').classList.remove('hidden');
+      document.getElementById('nav-dashboard').classList.remove('hidden');
+      document.getElementById('user-display').innerText = `${currentUserProfile?.full_name || currentUser.email} (${currentUserProfile?.role || 'buyer'})`;
+      
+      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById('dashboard-role-badge').innerText = `ROLE: ${currentUserProfile?.role?.toUpperCase() || 'BUYER'} | GCASH: ${currentUserProfile?.gcash_number || 'N/A'}`;
+      
+      if (currentUserProfile?.role === 'seller') {
+        document.getElementById('seller-panel').classList.remove('hidden');
+        loadSellerSales();
+      } else {
+        document.getElementById('seller-panel').classList.add('hidden');
+      }
+      loadBuyerOrders();
+    }
+
+    function updateUIForLoggedOutUser() {
+      document.getElementById('auth-guest').classList.remove('hidden');
+      document.getElementById('auth-user').classList.add('hidden');
+      document.getElementById('nav-dashboard').classList.add('hidden');
+      document.getElementById('dashboard').classList.add('hidden');
+    }
+
+    function openAuthModal(mode) {
+      document.getElementById('auth-mode').value = mode;
+      document.getElementById('modal-title').innerText = mode === 'login' ? 'Sign In to Arkhalis' : 'Register New Account';
+      document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Sign In' : 'Complete Registration';
+      if (mode === 'register') {
+        document.getElementById('register-fields').classList.remove('hidden');
+      } else {
+        document.getElementById('register-fields').classList.add('hidden');
+      }
+      document.getElementById('auth-modal').classList.remove('hidden');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.add('hidden');
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const mode = document.getElementById('auth-mode').value;
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+
+      if (mode === 'register') {
+        const fullName = document.getElementById('auth-fullname').value;
+        const gcash = document.getElementById('auth-gcash').value;
+        const role = document.getElementById('auth-role').value;
+
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: fullName, gcash_number: gcash, role: role }
+          }
+        });
+
+        if (error) return alert(error.message);
+        alert('Registration successful! Check your email or sign in.');
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) return alert(error.message);
+      }
+
+      closeAuthModal();
+      await checkUserSession();
+    }
+
+    async function handleLogout() {
+      await supabase.auth.signOut();
+      currentUser = null;
+      currentUserProfile = null;
+      updateUIForLoggedOutUser();
+    }
+
+    async function fetchProducts() {
+      const { data: products, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+      const grid = document.getElementById('product-grid');
+      
+      if (error || !products || products.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400">No components listed for sale yet.</div>`;
+        return;
+      }
+
+      grid.innerHTML = products.map(p => `
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-blue-400 transition flex flex-col justify-between">
+          <div>
+            <img src="${p.image_url}" alt="${p.title}" class="w-full h-48 object-cover bg-slate-100" onError="this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80'">
+            <div class="p-5 space-y-3">
+              <div class="flex justify-between items-start">
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">${p.category}</span>
+                <span class="text-xs text-slate-500 font-medium">Stock: ${p.stock}</span>
+              </div>
+              <h3 class="font-bold text-slate-900 text-lg">${p.title}</h3>
+              <p class="text-slate-600 text-xs line-clamp-2">${p.description}</p>
+            </div>
+          </div>
+          <div class="p-5 pt-0 space-y-3">
+            <div class="text-xl font-black font-mono text-blue-600">₱${parseFloat(p.price).toFixed(2)}</div>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="triggerPayMongoCheckout('${p.id}', '${p.title}', ${p.price}, '${p.seller_id}')" class="py-2.5 px-3 bg-blue-600 text-white font-bold text-xs rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1 shadow-sm">
+                <i class="fa-solid fa-bolt"></i> Buy Now
+              </button>
+              <button onclick="openReviewModal('${p.id}', '${p.title}')" class="py-2.5 px-3 bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-xs rounded-lg hover:bg-slate-200 transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-star text-amber-400"></i> Reviews
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function triggerPayMongoCheckout(productId, title, price, sellerId) {
+      if (!currentUser) {
+        alert('Please login to complete purchases.');
+        return openAuthModal('login');
+      }
+
+      try {
+        const response = await fetch('/api/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productTitle: title,
+            amount: price,
+            buyerId: currentUser.id,
+            sellerId: sellerId,
+            productId: productId,
+            quantity: 1
+          })
+        });
+
+        const resData = await response.json();
+        if (resData.checkoutUrl) {
+          window.location.href = resData.checkoutUrl;
+        } else {
+          alert('Failed to initialize PayMongo Checkout: ' + (resData.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Checkout error: ' + err.message);
+      }
+    }
+
+    async function handleCreateProduct(e) {
+      e.preventDefault();
+      if (!currentUser || currentUserProfile?.role !== 'seller') return alert('Only sellers can list products.');
+
+      const newProd = {
+        seller_id: currentUser.id,
+        title: document.getElementById('prod-title').value,
+        price: parseFloat(document.getElementById('prod-price').value),
+        category: document.getElementById('prod-category').value,
+        stock: parseInt(document.getElementById('prod-stock').value),
+        image_url: document.getElementById('prod-image').value,
+        description: document.getElementById('prod-desc').value
+      };
+
+      const { error } = await supabase.from('products').insert([newProd]);
+      if (error) return alert(error.message);
+
+      alert('Product listed successfully!');
+      document.getElementById('add-product-form').reset();
+      fetchProducts();
+    }
+
+    async function loadSellerSales() {
+      const { data: sales } = await supabase.from('orders').select('*, products(title)').eq('seller_id', currentUser.id);
+      const rows = document.getElementById('seller-sales-rows');
+      if (!sales || sales.length === 0) {
+        rows.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No sales recorded yet.</td></tr>`;
+        return;
+      }
+      rows.innerHTML = sales.map(s => `
+        <tr class="border-b border-slate-100 hover:bg-slate-50">
+          <td class="p-4 font-mono text-xs text-slate-500">${s.id.slice(0, 8)}...</td>
+          <td class="p-4 font-semibold text-slate-900">${s.products?.title || 'Component'}</td>
+          <td class="p-4">${s.quantity}</td>
+          <td class="p-4 font-mono font-bold text-blue-600">₱${s.total_amount}</td>
+          <td class="p-4"><span class="px-2 py-1 rounded text-xs font-semibold ${s.status === 'paid' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800'}">${s.status}</span></td>
+          <td class="p-4 text-xs text-slate-500">${new Date(s.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadBuyerOrders() {
+      const { data: orders } = await supabase.from('orders').select('*, products(title)').eq('buyer_id', currentUser.id);
+      const rows = document.getElementById('buyer-order-rows');
+      if (!orders || orders.length === 0) {
+        rows.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No orders placed yet.</td></tr>`;
+        return;
+      }
+      rows.innerHTML = orders.map(o => `
+        <tr class="border-b border-slate-100 hover:bg-slate-50">
+          <td class="p-4 font-mono text-xs text-slate-500">${o.id.slice(0, 8)}...</td>
+          <td class="p-4 font-semibold text-slate-900">${o.products?.title || 'Component'}</td>
+          <td class="p-4 font-mono font-bold text-blue-600">₱${o.total_amount}</td>
+          <td class="p-4"><span class="px-2 py-1 rounded text-xs font-semibold ${o.status === 'paid' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800'}">${o.status}</span></td>
+          <td class="p-4 text-xs text-slate-500">${new Date(o.created_at).toLocaleDateString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    function openReviewModal(prodId, prodTitle) {
+      document.getElementById('review-product-id').value = prodId;
+      document.getElementById('review-product-title').innerText = prodTitle;
+      document.getElementById('review-modal').classList.remove('hidden');
+      loadProductReviews(prodId);
+    }
+
+    function closeReviewModal() {
+      document.getElementById('review-modal').classList.add('hidden');
+    }
+
+    function setStarRating(rating) {
+      selectedRating = rating;
+      document.getElementById('review-rating').value = rating;
+      const stars = document.getElementById('star-selector').children;
+      for (let i = 0; i < 5; i++) {
+        if (i < rating) {
+          stars[i].className = 'fa-solid fa-star cursor-pointer';
+        } else {
+          stars[i].className = 'fa-regular fa-star cursor-pointer';
+        }
+      }
+    }
+
+    async function handleReviewSubmit(e) {
+      e.preventDefault();
+      if (!currentUser) return alert('Please login to write a review.');
+
+      const prodId = document.getElementById('review-product-id').value;
+      const comment = document.getElementById('review-comment').value;
+
+      const { error } = await supabase.from('reviews').insert([{
+        product_id: prodId,
+        user_id: currentUser.id,
+        rating: selectedRating,
+        comment: comment
+      }]);
+
+      if (error) return alert(error.message);
+      alert('Review posted!');
+      document.getElementById('review-comment').value = '';
+      loadProductReviews(prodId);
+    }
+
+    async function loadProductReviews(prodId) {
+      const { data: reviews } = await supabase.from('reviews').select('*, profiles(full_name)').eq('product_id', prodId);
+      const container = document.getElementById('modal-reviews-list');
+      if (!reviews || reviews.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400">No reviews yet for this item.</p>`;
+        return;
+      }
+      container.innerHTML = reviews.map(r => `
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-800">${r.profiles?.full_name || 'Verified Buyer'}</span>
+            <span class="text-amber-400 font-bold">${'★'.repeat(r.rating)}</span>
+          </div>
+          <p class="text-xs text-slate-600">${r.comment}</p>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
