@@ -430,224 +430,224 @@
 
   <!-- APPLICATION LOGIC -->
   <script>
-    // CONFIGURATION[cite: 1]
-    const SUPABASE_URL = 'https://tmsgqszbznukgowfwcnk.supabase.co';[cite: 1]
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc2dxc3piem51a2dvd2Z3Y25rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3ODQzNDQsImV4cCI6MjEwMzM2MDM0NH0.psg4eFLo6AdoCTCFJ7M1ZdqVzun81xgzz_ne5TKGWww';[cite: 1]
+    // CONFIGURATION
+    const SUPABASE_URL = 'https://tmsgqszbznukgowfwcnk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc2dxc3piem51a2dvd2Z3Y25rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3ODQzNDQsImV4cCI6MjEwMzM2MDM0NH0.psg4eFLo6AdoCTCFJ7M1ZdqVzun81xgzz_ne5TKGWww';
     
-    const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;[cite: 1]
+    const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-    // DYNAMIC BACKEND URL[cite: 1]
-    const BACKEND_API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')[cite: 1]
-      ? 'http://localhost:5000/api'[cite: 1]
-      : '/api';[cite: 1]
+    // DYNAMIC BACKEND URL
+    const BACKEND_API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:5000/api'
+      : '/api';
 
-    let currentUser = null;[cite: 1]
-    let currentUserProfile = null;[cite: 1]
-    let selectedRating = 5;[cite: 1]
-    let selectedSiteRating = 5;[cite: 1]
-    let cachedProducts = [];[cite: 1]
-    let uploadedBase64Image = '';[cite: 1]
+    let currentUser = null;
+    let currentUserProfile = null;
+    let selectedRating = 5;
+    let selectedSiteRating = 5;
+    let cachedProducts = [];
+    let uploadedBase64Image = '';
 
-    window.addEventListener('DOMContentLoaded', async () => {[cite: 1]
-      await checkUserSession();[cite: 1]
-      await fetchProducts();[cite: 1]
-      await fetchSiteReviews();[cite: 1]
-      checkPaymentCallback();[cite: 1]
-    });[cite: 1]
+    window.addEventListener('DOMContentLoaded', async () => {
+      await checkUserSession();
+      await fetchProducts();
+      await fetchSiteReviews();
+      checkPaymentCallback();
+    });
 
-    function checkPaymentCallback() {[cite: 1]
-      const urlParams = new URLSearchParams(window.location.search);[cite: 1]
-      if (urlParams.get('payment') === 'success') {[cite: 1]
-        alert('Payment completed successfully! Your order has been placed.');[cite: 1]
-        window.history.replaceState({}, document.title, window.location.pathname);[cite: 1]
-      } else if (urlParams.get('payment') === 'cancelled') {[cite: 1]
-        alert('Payment was cancelled.');[cite: 1]
-        window.history.replaceState({}, document.title, window.location.pathname);[cite: 1]
+    function checkPaymentCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('payment') === 'success') {
+        alert('Payment completed successfully! Your order has been placed.');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (urlParams.get('payment') === 'cancelled') {
+        alert('Payment was cancelled.');
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
-    }[cite: 1]
+    }
 
-    // IMAGE FILE UPLOAD CONVERSION TO BASE64[cite: 1]
-    function handleImageFileSelect(event) {[cite: 1]
-      const file = event.target.files[0];[cite: 1]
-      if (!file) return;[cite: 1]
+    // IMAGE FILE UPLOAD CONVERSION TO BASE64
+    function handleImageFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-      const reader = new FileReader();[cite: 1]
-      reader.onload = function(e) {[cite: 1]
-        uploadedBase64Image = e.target.result;[cite: 1]
-        const preview = document.getElementById('image-preview');[cite: 1]
-        const container = document.getElementById('image-preview-container');[cite: 1]
-        preview.src = uploadedBase64Image;[cite: 1]
-        container.classList.remove('hidden');[cite: 1]
-      };[cite: 1]
-      reader.readAsDataURL(file);[cite: 1]
-    }[cite: 1]
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedBase64Image = e.target.result;
+        const preview = document.getElementById('image-preview');
+        const container = document.getElementById('image-preview-container');
+        preview.src = uploadedBase64Image;
+        container.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
 
-    async function checkUserSession() {[cite: 1]
-      if (!supabaseClient) return;[cite: 1]
-      try {[cite: 1]
-        const { data: { session } } = await supabaseClient.auth.getSession();[cite: 1]
-        if (session) {[cite: 1]
-          currentUser = session.user;[cite: 1]
-          const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();[cite: 1]
-          currentUserProfile = profile;[cite: 1]
-          updateUIForLoggedInUser();[cite: 1]
-        } else {[cite: 1]
-          updateUIForLoggedOutUser();[cite: 1]
+    async function checkUserSession() {
+      if (!supabaseClient) return;
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+          currentUserProfile = profile;
+          updateUIForLoggedInUser();
+        } else {
+          updateUIForLoggedOutUser();
         }
-      } catch (err) {[cite: 1]
-        console.warn('Session verification fallback:', err.message);[cite: 1]
-        updateUIForLoggedOutUser();[cite: 1]
+      } catch (err) {
+        console.warn('Session verification fallback:', err.message);
+        updateUIForLoggedOutUser();
       }
-    }[cite: 1]
+    }
 
-    function updateUIForLoggedInUser() {[cite: 1]
-      document.getElementById('auth-guest').classList.add('hidden');[cite: 1]
-      document.getElementById('auth-user').classList.remove('hidden');[cite: 1]
-      document.getElementById('nav-dashboard').classList.remove('hidden');[cite: 1]
-      document.getElementById('user-display').innerText = `${currentUserProfile?.full_name || currentUser.email} (${currentUserProfile?.role || 'buyer'})`;[cite: 1]
+    function updateUIForLoggedInUser() {
+      document.getElementById('auth-guest').classList.add('hidden');
+      document.getElementById('auth-user').classList.remove('hidden');
+      document.getElementById('nav-dashboard').classList.remove('hidden');
+      document.getElementById('user-display').innerText = `${currentUserProfile?.full_name || currentUser.email} (${currentUserProfile?.role || 'buyer'})`;
       
-      document.getElementById('dashboard').classList.remove('hidden');[cite: 1]
-      document.getElementById('dashboard-role-badge').innerText = `ROLE: ${currentUserProfile?.role?.toUpperCase() || 'BUYER'} | GCASH: ${currentUserProfile?.gcash_number || 'N/A'}`;[cite: 1]
+      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById('dashboard-role-badge').innerText = `ROLE: ${currentUserProfile?.role?.toUpperCase() || 'BUYER'} | GCASH: ${currentUserProfile?.gcash_number || 'N/A'}`;
       
-      if (currentUserProfile?.role === 'seller') {[cite: 1]
-        document.getElementById('seller-panel').classList.remove('hidden');[cite: 1]
-        loadSellerSales();[cite: 1]
-      } else {[cite: 1]
-        document.getElementById('seller-panel').classList.add('hidden');[cite: 1]
+      if (currentUserProfile?.role === 'seller') {
+        document.getElementById('seller-panel').classList.remove('hidden');
+        loadSellerSales();
+      } else {
+        document.getElementById('seller-panel').classList.add('hidden');
       }
-      loadBuyerOrders();[cite: 1]
-    }[cite: 1]
+      loadBuyerOrders();
+    }
 
-    function updateUIForLoggedOutUser() {[cite: 1]
-      document.getElementById('auth-guest').classList.remove('hidden');[cite: 1]
-      document.getElementById('auth-user').classList.add('hidden');[cite: 1]
-      document.getElementById('nav-dashboard').classList.add('hidden');[cite: 1]
-      document.getElementById('dashboard').classList.add('hidden');[cite: 1]
-    }[cite: 1]
+    function updateUIForLoggedOutUser() {
+      document.getElementById('auth-guest').classList.remove('hidden');
+      document.getElementById('auth-user').classList.add('hidden');
+      document.getElementById('nav-dashboard').classList.add('hidden');
+      document.getElementById('dashboard').classList.add('hidden');
+    }
 
-    function openAuthModal(mode) {[cite: 1]
-      document.getElementById('auth-mode').value = mode;[cite: 1]
-      document.getElementById('modal-title').innerText = mode === 'login' ? 'Sign In to Arkhalis' : 'Register New Account';[cite: 1]
-      document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Sign In' : 'Complete Registration';[cite: 1]
-      if (mode === 'register') {[cite: 1]
-        document.getElementById('register-fields').classList.remove('hidden');[cite: 1]
-      } else {[cite: 1]
-        document.getElementById('register-fields').classList.add('hidden');[cite: 1]
+    function openAuthModal(mode) {
+      document.getElementById('auth-mode').value = mode;
+      document.getElementById('modal-title').innerText = mode === 'login' ? 'Sign In to Arkhalis' : 'Register New Account';
+      document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Sign In' : 'Complete Registration';
+      if (mode === 'register') {
+        document.getElementById('register-fields').classList.remove('hidden');
+      } else {
+        document.getElementById('register-fields').classList.add('hidden');
       }
-      document.getElementById('auth-modal').classList.remove('hidden');[cite: 1]
-    }[cite: 1]
+      document.getElementById('auth-modal').classList.remove('hidden');
+    }
 
-    function closeAuthModal() {[cite: 1]
-      document.getElementById('auth-modal').classList.add('hidden');[cite: 1]
-    }[cite: 1]
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.add('hidden');
+    }
 
-    async function handleAuthSubmit(e) {[cite: 1]
-      e.preventDefault();[cite: 1]
-      if (!supabaseClient) return alert('Supabase client failed to initialize.');[cite: 1]
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      if (!supabaseClient) return alert('Supabase client failed to initialize.');
 
-      const mode = document.getElementById('auth-mode').value;[cite: 1]
-      const email = document.getElementById('auth-email').value;[cite: 1]
-      const password = document.getElementById('auth-password').value;[cite: 1]
+      const mode = document.getElementById('auth-mode').value;
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
 
-      if (mode === 'register') {[cite: 1]
-        const fullName = document.getElementById('auth-fullname').value;[cite: 1]
-        const gcash = document.getElementById('auth-gcash').value;[cite: 1]
-        const role = document.getElementById('auth-role').value;[cite: 1]
+      if (mode === 'register') {
+        const fullName = document.getElementById('auth-fullname').value;
+        const gcash = document.getElementById('auth-gcash').value;
+        const role = document.getElementById('auth-role').value;
 
-        const { data: authData, error } = await supabaseClient.auth.signUp({[cite: 1]
-          email,[cite: 1]
-          password,[cite: 1]
-          options: { data: { full_name: fullName, gcash_number: gcash, role: role } }[cite: 1]
-        });[cite: 1]
+        const { data: authData, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullName, gcash_number: gcash, role: role } }
+        });
 
-        if (error) return alert(error.message);[cite: 1]
+        if (error) return alert(error.message);
 
-        if (authData?.user) {[cite: 1]
-          await supabaseClient.from('profiles').upsert([{[cite: 1]
-            id: authData.user.id,[cite: 1]
-            full_name: fullName,[cite: 1]
-            gcash_number: gcash,[cite: 1]
-            role: role[cite: 1]
-          }]);[cite: 1]
+        if (authData?.user) {
+          await supabaseClient.from('profiles').upsert([{
+            id: authData.user.id,
+            full_name: fullName,
+            gcash_number: gcash,
+            role: role
+          }]);
         }
 
-        alert('Registration successful! Please sign in.');[cite: 1]
-      } else {[cite: 1]
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });[cite: 1]
-        if (error) return alert(error.message);[cite: 1]
+        alert('Registration successful! Please sign in.');
+      } else {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) return alert(error.message);
       }
 
-      closeAuthModal();[cite: 1]
-      await checkUserSession();[cite: 1]
-    }[cite: 1]
+      closeAuthModal();
+      await checkUserSession();
+    }
 
-    async function handleLogout() {[cite: 1]
-      if (supabaseClient) await supabaseClient.auth.signOut();[cite: 1]
-      currentUser = null;[cite: 1]
-      currentUserProfile = null;[cite: 1]
-      updateUIForLoggedOutUser();[cite: 1]
-    }[cite: 1]
+    async function handleLogout() {
+      if (supabaseClient) await supabaseClient.auth.signOut();
+      currentUser = null;
+      currentUserProfile = null;
+      updateUIForLoggedOutUser();
+    }
 
-    // FETCH PRODUCTS CATALOG[cite: 1]
-    async function fetchProducts() {[cite: 1]
-      try {[cite: 1]
-        if (!supabaseClient) throw new Error('Supabase client offline');[cite: 1]
+    // FETCH PRODUCTS CATALOG
+    async function fetchProducts() {
+      try {
+        if (!supabaseClient) throw new Error('Supabase client offline');
         
-        const { data: products, error } = await supabaseClient[cite: 1]
-          .from('products')[cite: 1]
-          .select('*')[cite: 1]
-          .order('created_at', { ascending: false });[cite: 1]
+        const { data: products, error } = await supabaseClient
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-        if (error || !products || products.length === 0) {[cite: 1]
-          cachedProducts = [[cite: 1]
-            {[cite: 1]
-              id: 'demo-1',[cite: 1]
-              title: 'ARK-9000 Neural Microprocessor',[cite: 1]
-              category: 'Microcontrollers',[cite: 1]
-              stock: 15,[cite: 1]
-              price: 1450.00,[cite: 1]
-              description: 'Next-gen silicon processor for edge computing and local machine vision.',[cite: 1]
-              image_url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',[cite: 1]
-              seller_id: 'default-seller'[cite: 1]
-            },[cite: 1]
-            {[cite: 1]
-              id: 'demo-2',[cite: 1]
-              title: 'ESP32 Wi-Fi & Bluetooth Module',[cite: 1]
-              category: 'IoT Connectivity',[cite: 1]
-              stock: 40,[cite: 1]
-              price: 320.00,[cite: 1]
-              description: 'Dual-core microcontroller with integrated 2.4GHz Wi-Fi and Bluetooth LE.',[cite: 1]
-              image_url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80',[cite: 1]
-              seller_id: 'default-seller'[cite: 1]
-            }[cite: 1]
-          ];[cite: 1]
-          renderProducts(cachedProducts);[cite: 1]
-          return;[cite: 1]
+        if (error || !products || products.length === 0) {
+          cachedProducts = [
+            {
+              id: 'demo-1',
+              title: 'ARK-9000 Neural Microprocessor',
+              category: 'Microcontrollers',
+              stock: 15,
+              price: 1450.00,
+              description: 'Next-gen silicon processor for edge computing and local machine vision.',
+              image_url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+              seller_id: 'default-seller'
+            },
+            {
+              id: 'demo-2',
+              title: 'ESP32 Wi-Fi & Bluetooth Module',
+              category: 'IoT Connectivity',
+              stock: 40,
+              price: 320.00,
+              description: 'Dual-core microcontroller with integrated 2.4GHz Wi-Fi and Bluetooth LE.',
+              image_url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80',
+              seller_id: 'default-seller'
+            }
+          ];
+          renderProducts(cachedProducts);
+          return;
         }
 
-        cachedProducts = products;[cite: 1]
-        renderProducts(cachedProducts);[cite: 1]
-      } catch (err) {[cite: 1]
-        console.warn('Database query fallback:', err.message);[cite: 1]
-        renderProducts([[cite: 1]
-          {[cite: 1]
-            id: 'demo-1',[cite: 1]
-            title: 'ARK-9000 Neural Microprocessor',[cite: 1]
-            category: 'Microcontrollers',[cite: 1]
-            stock: 15,[cite: 1]
-            price: 1450.00,[cite: 1]
-            description: 'Next-gen silicon processor for edge computing and local machine vision.',[cite: 1]
-            image_url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',[cite: 1]
-            seller_id: 'default-seller'[cite: 1]
-          }[cite: 1]
-        ]);[cite: 1]
+        cachedProducts = products;
+        renderProducts(cachedProducts);
+      } catch (err) {
+        console.warn('Database query fallback:', err.message);
+        renderProducts([
+          {
+            id: 'demo-1',
+            title: 'ARK-9000 Neural Microprocessor',
+            category: 'Microcontrollers',
+            stock: 15,
+            price: 1450.00,
+            description: 'Next-gen silicon processor for edge computing and local machine vision.',
+            image_url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+            seller_id: 'default-seller'
+          }
+        ]);
       }
-    }[cite: 1]
+    }
 
-    function renderProducts(products) {[cite: 1]
-      const grid = document.getElementById('product-grid');[cite: 1]
-      grid.innerHTML = products.map(p => {[cite: 1]
-        const escapedTitle = p.title.replace(/'/g, "\\'");[cite: 1]
+    function renderProducts(products) {
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = products.map(p => {
+        const escapedTitle = p.title.replace(/'/g, "\\'");
         
         return `
           <div class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition flex flex-col justify-between">
@@ -674,99 +674,99 @@
               </div>
             </div>
           </div>
-        `;[cite: 1]
-      }).join('');[cite: 1]
-    }[cite: 1]
+        `;
+      }).join('');
+    }
 
-    // PAYMONGO CHECKOUT TRIGGER[cite: 1]
-    async function triggerPayMongoCheckout(productId, title, price, sellerId) {[cite: 1]
-      if (!currentUser) {[cite: 1]
-        alert('Please login to proceed with payment.');[cite: 1]
-        return openAuthModal('login');[cite: 1]
+    // PAYMONGO CHECKOUT TRIGGER
+    async function triggerPayMongoCheckout(productId, title, price, sellerId) {
+      if (!currentUser) {
+        alert('Please login to proceed with payment.');
+        return openAuthModal('login');
       }
 
-      try {[cite: 1]
-        const response = await fetch(`${BACKEND_API_URL}/create-checkout`, {[cite: 1]
-          method: 'POST',[cite: 1]
-          headers: { 'Content-Type': 'application/json' },[cite: 1]
-          body: JSON.stringify({[cite: 1]
-            productTitle: title,[cite: 1]
-            amount: price,[cite: 1]
-            buyerId: currentUser.id,[cite: 1]
-            sellerId: sellerId,[cite: 1]
-            productId: productId,[cite: 1]
-            quantity: 1[cite: 1]
-          })[cite: 1]
-        });[cite: 1]
+      try {
+        const response = await fetch(`${BACKEND_API_URL}/create-checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productTitle: title,
+            amount: price,
+            buyerId: currentUser.id,
+            sellerId: sellerId,
+            productId: productId,
+            quantity: 1
+          })
+        });
 
-        if (!response.ok) {[cite: 1]
-          throw new Error(`Server returned HTTP ${response.status}`);[cite: 1]
+        if (!response.ok) {
+          throw new Error(`Server returned HTTP ${response.status}`);
         }
 
-        const resData = await response.json();[cite: 1]
-        if (resData.checkoutUrl) {[cite: 1]
-          window.location.href = resData.checkoutUrl;[cite: 1]
-        } else {[cite: 1]
-          alert('Failed to initiate PayMongo session: ' + (resData.error || 'Backend service error'));[cite: 1]
+        const resData = await response.json();
+        if (resData.checkoutUrl) {
+          window.location.href = resData.checkoutUrl;
+        } else {
+          alert('Failed to initiate PayMongo session: ' + (resData.error || 'Backend service error'));
         }
-      } catch (err) {[cite: 1]
-        alert('Checkout Server Error: Please ensure your PayMongo backend server or Vercel serverless API route (/api/create-checkout) is deployed and accessible.');[cite: 1]
+      } catch (err) {
+        alert('Checkout Server Error: Please ensure your PayMongo backend server or Vercel serverless API route (/api/create-checkout) is deployed and accessible.');
       }
-    }[cite: 1]
+    }
 
-    // SITE REVIEWS LOGIC[cite: 1]
-    function setSiteStarRating(rating) {[cite: 1]
-      selectedSiteRating = rating;[cite: 1]
-      document.getElementById('site-review-rating').value = rating;[cite: 1]
-      const stars = document.getElementById('site-star-selector').children;[cite: 1]
-      for (let i = 0; i < 5; i++) {[cite: 1]
-        stars[i].className = i < rating ? 'fa-solid fa-star cursor-pointer' : 'fa-regular fa-star cursor-pointer';[cite: 1]
+    // SITE REVIEWS LOGIC
+    function setSiteStarRating(rating) {
+      selectedSiteRating = rating;
+      document.getElementById('site-review-rating').value = rating;
+      const stars = document.getElementById('site-star-selector').children;
+      for (let i = 0; i < 5; i++) {
+        stars[i].className = i < rating ? 'fa-solid fa-star cursor-pointer' : 'fa-regular fa-star cursor-pointer';
       }
-    }[cite: 1]
+    }
 
-    async function handleSiteReviewSubmit(e) {[cite: 1]
-      e.preventDefault();[cite: 1]
-      if (!currentUser) {[cite: 1]
-        alert('Please login to share your experience.');[cite: 1]
-        return openAuthModal('login');[cite: 1]
+    async function handleSiteReviewSubmit(e) {
+      e.preventDefault();
+      if (!currentUser) {
+        alert('Please login to share your experience.');
+        return openAuthModal('login');
       }
 
-      const title = document.getElementById('site-review-title').value;[cite: 1]
-      const comment = document.getElementById('site-review-comment').value;[cite: 1]
+      const title = document.getElementById('site-review-title').value;
+      const comment = document.getElementById('site-review-comment').value;
 
-      try {[cite: 1]
-        const { error } = await supabaseClient.from('site_reviews').insert([{[cite: 1]
-          user_id: currentUser.id,[cite: 1]
-          rating: selectedSiteRating,[cite: 1]
-          title: title,[cite: 1]
-          comment: comment[cite: 1]
-        }]);[cite: 1]
+      try {
+        const { error } = await supabaseClient.from('site_reviews').insert([{
+          user_id: currentUser.id,
+          rating: selectedSiteRating,
+          title: title,
+          comment: comment
+        }]);
 
-        if (error) return alert('Error submitting review: ' + error.message);[cite: 1]
+        if (error) return alert('Error submitting review: ' + error.message);
 
-        alert('Thank you for sharing your experience!');[cite: 1]
-        document.getElementById('site-review-form').reset();[cite: 1]
-        setSiteStarRating(5);[cite: 1]
-        await fetchSiteReviews();[cite: 1]
-      } catch (err) {[cite: 1]
-        alert('Database query error: ' + err.message);[cite: 1]
+        alert('Thank you for sharing your experience!');
+        document.getElementById('site-review-form').reset();
+        setSiteStarRating(5);
+        await fetchSiteReviews();
+      } catch (err) {
+        alert('Database query error: ' + err.message);
       }
-    }[cite: 1]
+    }
 
-    async function fetchSiteReviews() {[cite: 1]
-      const grid = document.getElementById('site-reviews-grid');[cite: 1]
+    async function fetchSiteReviews() {
+      const grid = document.getElementById('site-reviews-grid');
       
-      try {[cite: 1]
-        if (!supabaseClient) throw new Error('Supabase client offline');[cite: 1]
+      try {
+        if (!supabaseClient) throw new Error('Supabase client offline');
 
-        const { data: reviews, error } = await supabaseClient[cite: 1]
-          .from('site_reviews')[cite: 1]
-          .select('*, profiles(full_name, role)')[cite: 1]
-          .order('created_at', { ascending: false });[cite: 1]
+        const { data: reviews, error } = await supabaseClient
+          .from('site_reviews')
+          .select('*, profiles(full_name, role)')
+          .order('created_at', { ascending: false });
 
-        if (error || !reviews || reviews.length === 0) {[cite: 1]
-          renderDefaultReviews(grid);[cite: 1]
-          return;[cite: 1]
+        if (error || !reviews || reviews.length === 0) {
+          renderDefaultReviews(grid);
+          return;
         }
 
         grid.innerHTML = reviews.map(r => `
@@ -793,13 +793,13 @@
               ${new Date(r.created_at).toLocaleDateString()}
             </div>
           </div>
-        `).join('');[cite: 1]
-      } catch (err) {[cite: 1]
-        renderDefaultReviews(grid);[cite: 1]
+        `).join('');
+      } catch (err) {
+        renderDefaultReviews(grid);
       }
-    }[cite: 1]
+    }
 
-    function renderDefaultReviews(grid) {[cite: 1]
+    function renderDefaultReviews(grid) {
       grid.innerHTML = `
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-3">
           <div>
@@ -822,10 +822,10 @@
             Verified Review
           </div>
         </div>
-      `;[cite: 1]
-    }[cite: 1]
+      `;
+    }
 
-    // GEMINI AI CHATBOT FUNCTIONS (UPDATED FOR REAL-TIME API RESPONSES)
+    // GEMINI AI CHATBOT FUNCTIONS
     function toggleGeminiChat() {
       document.getElementById('gemini-chat-window').classList.toggle('hidden');
     }
@@ -883,50 +883,50 @@
       if (el) el.remove();
     }
 
-    // DASHBOARD MANAGEMENT[cite: 1]
-    async function handleCreateProduct(e) {[cite: 1]
-      e.preventDefault();[cite: 1]
-      if (!currentUser || currentUserProfile?.role !== 'seller') return alert('Only sellers can list products.');[cite: 1]
-      if (!uploadedBase64Image) return alert('Please upload a product photo from your device.');[cite: 1]
+    // DASHBOARD MANAGEMENT
+    async function handleCreateProduct(e) {
+      e.preventDefault();
+      if (!currentUser || currentUserProfile?.role !== 'seller') return alert('Only sellers can list products.');
+      if (!uploadedBase64Image) return alert('Please upload a product photo from your device.');
 
-      const btn = document.getElementById('prod-submit-btn');[cite: 1]
-      btn.innerText = 'Publishing...';[cite: 1]
-      btn.disabled = true;[cite: 1]
+      const btn = document.getElementById('prod-submit-btn');
+      btn.innerText = 'Publishing...';
+      btn.disabled = true;
 
-      const newProd = {[cite: 1]
-        seller_id: currentUser.id,[cite: 1]
-        title: document.getElementById('prod-title').value,[cite: 1]
-        price: parseFloat(document.getElementById('prod-price').value),[cite: 1]
-        category: document.getElementById('prod-category').value,[cite: 1]
-        stock: parseInt(document.getElementById('prod-stock').value),[cite: 1]
-        image_url: uploadedBase64Image,[cite: 1]
-        description: document.getElementById('prod-desc').value[cite: 1]
-      };[cite: 1]
+      const newProd = {
+        seller_id: currentUser.id,
+        title: document.getElementById('prod-title').value,
+        price: parseFloat(document.getElementById('prod-price').value),
+        category: document.getElementById('prod-category').value,
+        stock: parseInt(document.getElementById('prod-stock').value),
+        image_url: uploadedBase64Image,
+        description: document.getElementById('prod-desc').value
+      };
 
-      try {[cite: 1]
-        const { error } = await supabaseClient.from('products').insert([newProd]);[cite: 1]
-        if (error) throw error;[cite: 1]
+      try {
+        const { error } = await supabaseClient.from('products').insert([newProd]);
+        if (error) throw error;
 
-        alert('Product listed successfully!');[cite: 1]
-        document.getElementById('add-product-form').reset();[cite: 1]
-        document.getElementById('image-preview-container').classList.add('hidden');[cite: 1]
-        uploadedBase64Image = '';[cite: 1]
-        fetchProducts();[cite: 1]
-      } catch (err) {[cite: 1]
-        alert('Failed to publish product: ' + err.message);[cite: 1]
-      } finally {[cite: 1]
-        btn.innerText = 'Publish Product';[cite: 1]
-        btn.disabled = false;[cite: 1]
+        alert('Product listed successfully!');
+        document.getElementById('add-product-form').reset();
+        document.getElementById('image-preview-container').classList.add('hidden');
+        uploadedBase64Image = '';
+        fetchProducts();
+      } catch (err) {
+        alert('Failed to publish product: ' + err.message);
+      } finally {
+        btn.innerText = 'Publish Product';
+        btn.disabled = false;
       }
-    }[cite: 1]
+    }
 
-    async function loadSellerSales() {[cite: 1]
-      if (!supabaseClient) return;[cite: 1]
-      const { data: sales } = await supabaseClient.from('orders').select('*, products(title)').eq('seller_id', currentUser.id);[cite: 1]
-      const rows = document.getElementById('seller-sales-rows');[cite: 1]
-      if (!sales || sales.length === 0) {[cite: 1]
-        rows.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No sales recorded yet.</td></tr>`;[cite: 1]
-        return;[cite: 1]
+    async function loadSellerSales() {
+      if (!supabaseClient) return;
+      const { data: sales } = await supabaseClient.from('orders').select('*, products(title)').eq('seller_id', currentUser.id);
+      const rows = document.getElementById('seller-sales-rows');
+      if (!sales || sales.length === 0) {
+        rows.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No sales recorded yet.</td></tr>`;
+        return;
       }
       rows.innerHTML = sales.map(s => `
         <tr class="border-b border-slate-100 hover:bg-slate-50">
@@ -937,16 +937,16 @@
           <td class="p-4"><span class="px-2.5 py-1 rounded text-xs font-semibold ${s.status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${s.status.toUpperCase()}</span></td>
           <td class="p-4 text-xs text-slate-500">${new Date(s.created_at).toLocaleDateString()}</td>
         </tr>
-      `).join('');[cite: 1]
-    }[cite: 1]
+      `).join('');
+    }
 
-    async function loadBuyerOrders() {[cite: 1]
-      if (!supabaseClient) return;[cite: 1]
-      const { data: orders } = await supabaseClient.from('orders').select('*, products(title)').eq('buyer_id', currentUser.id);[cite: 1]
-      const rows = document.getElementById('buyer-order-rows');[cite: 1]
-      if (!orders || orders.length === 0) {[cite: 1]
-        rows.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No orders placed yet.</td></tr>`;[cite: 1]
-        return;[cite: 1]
+    async function loadBuyerOrders() {
+      if (!supabaseClient) return;
+      const { data: orders } = await supabaseClient.from('orders').select('*, products(title)').eq('buyer_id', currentUser.id);
+      const rows = document.getElementById('buyer-order-rows');
+      if (!orders || orders.length === 0) {
+        rows.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No orders placed yet.</td></tr>`;
+        return;
       }
       rows.innerHTML = orders.map(o => `
         <tr class="border-b border-slate-100 hover:bg-slate-50">
@@ -956,60 +956,60 @@
           <td class="p-4"><span class="px-2.5 py-1 rounded text-xs font-semibold ${o.status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${o.status.toUpperCase()}</span></td>
           <td class="p-4 text-xs text-slate-500">${new Date(o.created_at).toLocaleDateString()}</td>
         </tr>
-      `).join('');[cite: 1]
-    }[cite: 1]
+      `).join('');
+    }
 
-    // PRODUCT REVIEWS[cite: 1]
-    function openReviewModal(prodId, prodTitle) {[cite: 1]
-      document.getElementById('review-product-id').value = prodId;[cite: 1]
-      document.getElementById('review-product-title').innerText = prodTitle;[cite: 1]
-      document.getElementById('review-modal').classList.remove('hidden');[cite: 1]
-      loadProductReviews(prodId);[cite: 1]
-    }[cite: 1]
+    // PRODUCT REVIEWS
+    function openReviewModal(prodId, prodTitle) {
+      document.getElementById('review-product-id').value = prodId;
+      document.getElementById('review-product-title').innerText = prodTitle;
+      document.getElementById('review-modal').classList.remove('hidden');
+      loadProductReviews(prodId);
+    }
 
-    function closeReviewModal() {[cite: 1]
-      document.getElementById('review-modal').classList.add('hidden');[cite: 1]
-    }[cite: 1]
+    function closeReviewModal() {
+      document.getElementById('review-modal').classList.add('hidden');
+    }
 
-    function setStarRating(rating) {[cite: 1]
-      selectedRating = rating;[cite: 1]
-      document.getElementById('review-rating').value = rating;[cite: 1]
-      const stars = document.getElementById('star-selector').children;[cite: 1]
-      for (let i = 0; i < 5; i++) {[cite: 1]
-        stars[i].className = i < rating ? 'fa-solid fa-star cursor-pointer' : 'fa-regular fa-star cursor-pointer';[cite: 1]
+    function setStarRating(rating) {
+      selectedRating = rating;
+      document.getElementById('review-rating').value = rating;
+      const stars = document.getElementById('star-selector').children;
+      for (let i = 0; i < 5; i++) {
+        stars[i].className = i < rating ? 'fa-solid fa-star cursor-pointer' : 'fa-regular fa-star cursor-pointer';
       }
-    }[cite: 1]
+    }
 
-    async function handleReviewSubmit(e) {[cite: 1]
-      e.preventDefault();[cite: 1]
-      if (!currentUser) return alert('Please login to write a review.');[cite: 1]
+    async function handleReviewSubmit(e) {
+      e.preventDefault();
+      if (!currentUser) return alert('Please login to write a review.');
 
-      const prodId = document.getElementById('review-product-id').value;[cite: 1]
-      const comment = document.getElementById('review-comment').value;[cite: 1]
+      const prodId = document.getElementById('review-product-id').value;
+      const comment = document.getElementById('review-comment').value;
 
-      const { error } = await supabaseClient.from('reviews').insert([{[cite: 1]
-        product_id: prodId,[cite: 1]
-        user_id: currentUser.id,[cite: 1]
-        rating: selectedRating,[cite: 1]
-        comment: comment[cite: 1]
-      }]);[cite: 1]
+      const { error } = await supabaseClient.from('reviews').insert([{
+        product_id: prodId,
+        user_id: currentUser.id,
+        rating: selectedRating,
+        comment: comment
+      }]);
 
-      if (error) return alert(error.message);[cite: 1]
-      alert('Review posted!');[cite: 1]
-      document.getElementById('review-comment').value = '';[cite: 1]
-      loadProductReviews(prodId);[cite: 1]
-    }[cite: 1]
+      if (error) return alert(error.email || error.message);
+      alert('Review posted!');
+      document.getElementById('review-comment').value = '';
+      loadProductReviews(prodId);
+    }
 
-    async function loadProductReviews(prodId) {[cite: 1]
-      const container = document.getElementById('modal-reviews-list');[cite: 1]
-      if (!supabaseClient) {[cite: 1]
-        container.innerHTML = `<p class="text-xs text-slate-400">No reviews yet for this item.</p>`;[cite: 1]
-        return;[cite: 1]
+    async function loadProductReviews(prodId) {
+      const container = document.getElementById('modal-reviews-list');
+      if (!supabaseClient) {
+        container.innerHTML = `<p class="text-xs text-slate-400">No reviews yet for this item.</p>`;
+        return;
       }
-      const { data: reviews } = await supabaseClient.from('reviews').select('*, profiles(full_name)').eq('product_id', prodId);[cite: 1]
-      if (!reviews || reviews.length === 0) {[cite: 1]
-        container.innerHTML = `<p class="text-xs text-slate-400">No reviews yet for this item.</p>`;[cite: 1]
-        return;[cite: 1]
+      const { data: reviews } = await supabaseClient.from('reviews').select('*, profiles(full_name)').eq('product_id', prodId);
+      if (!reviews || reviews.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400">No reviews yet for this item.</p>`;
+        return;
       }
       container.innerHTML = reviews.map(r => `
         <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1">
@@ -1019,8 +1019,8 @@
           </div>
           <p class="text-xs text-slate-600">${r.comment}</p>
         </div>
-      `).join('');[cite: 1]
-    }[cite: 1]
+      `).join('');
+    }
   </script>
 </body>
 </html>
