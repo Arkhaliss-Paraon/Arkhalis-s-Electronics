@@ -24,6 +24,14 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'PAYMONGO_SECRET_KEY is missing in Vercel environment variables.' });
     }
 
+    // Clean the amount string (removes commas like "1,450.00" -> "1450.00")
+    const cleanAmount = typeof amount === 'string' ? amount.replace(/,/g, '') : amount;
+    const parsedAmount = parseFloat(cleanAmount);
+
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ error: `Invalid amount received: ${amount}` });
+    }
+
     const response = await fetch('https://api.paymongo.com/v1/checkout_sessions', {
       method: 'POST',
       headers: {
@@ -37,12 +45,14 @@ module.exports = async function handler(req, res) {
             line_items: [
               {
                 currency: 'PHP',
-                amount: Math.round(parseFloat(amount) * 100), // Convert to centavos
+                amount: Math.round(parsedAmount * 100), // Convert to centavos safely
                 description: productTitle,
                 name: productTitle,
                 quantity: parseInt(quantity || 1)
-              }
+              },
+              
             ],
+            payment_method_types: ['card', 'gcash', 'paymaya'],
             success_url: `${req.headers.origin || 'https://' + req.headers.host}?payment=success`,
             cancel_url: `${req.headers.origin || 'https://' + req.headers.host}?payment=cancelled`,
             description: `Order for ${productTitle}`
@@ -56,8 +66,9 @@ module.exports = async function handler(req, res) {
     if (data && data.data && data.data.attributes && data.data.attributes.checkout_url) {
       return res.status(200).json({ checkoutUrl: data.data.attributes.checkout_url });
     } else {
-      console.error('PayMongo API Error:', data);
-      return res.status(400).json({ error: data.errors?.[0]?.detail || 'Failed to generate PayMongo checkout link' });
+      console.error('PayMongo API Error Details:', JSON.stringify(data));
+      const errorMsg = data.errors?.[0]?.detail || JSON.stringify(data.errors) || 'Failed to generate PayMongo checkout link';
+      return res.status(400).json({ error: errorMsg });
     }
   } catch (err) {
     console.error('Server Exception:', err);
