@@ -193,9 +193,19 @@
               <input type="number" step="0.01" id="prod-price" placeholder="Price (PHP)" required class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 outline-none text-slate-900">
               <input type="text" id="prod-category" placeholder="Category (e.g. Microcontrollers, Sensors)" required class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 outline-none text-slate-900">
               <input type="number" id="prod-stock" placeholder="Stock Quantity" required class="bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 outline-none text-slate-900">
-              <input type="url" id="prod-image" placeholder="Image URL (Direct link)" required class="md:col-span-2 bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 outline-none text-slate-900">
+              
+              <!-- DIRECT FILE UPLOAD FIELD -->
+              <div class="md:col-span-2 space-y-2">
+                <label class="text-xs font-semibold text-slate-600 block">Product Photo (Direct File Upload)</label>
+                <input type="file" id="prod-file" accept="image/*" required onchange="handleImageFileSelect(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-300 rounded-lg p-1 bg-slate-50">
+                <div id="image-preview-container" class="hidden mt-2 flex items-center gap-3 p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                  <img id="image-preview" src="" alt="Preview" class="w-14 h-14 object-cover rounded-md border border-slate-300">
+                  <span class="text-xs text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i>Image attached ready for submit</span>
+                </div>
+              </div>
+
               <textarea id="prod-desc" placeholder="Product Description & Technical Specifications..." required class="md:col-span-2 bg-slate-50 border border-slate-300 rounded-lg p-3 text-sm focus:border-blue-600 outline-none text-slate-900 h-24"></textarea>
-              <button type="submit" class="md:col-span-2 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-sm">Publish Product</button>
+              <button type="submit" id="prod-submit-btn" class="md:col-span-2 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-sm">Publish Product</button>
             </form>
           </div>
 
@@ -426,20 +436,51 @@
     
     const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-    const BACKEND_API_URL = 'http://localhost:5000/api'; // Express PayMongo Backend
-    const GEMINI_API_KEY = 'AQ.Ab8RN6JMGNN0yc9TTbvltmeIGbT1msT9gR-GBqXtzTti6Zrczg'; // Insert your key from Google AI Studio here
+    // DYNAMIC BACKEND URL
+    const BACKEND_API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:5000/api'
+      : '/api';
 
     let currentUser = null;
     let currentUserProfile = null;
     let selectedRating = 5;
     let selectedSiteRating = 5;
     let cachedProducts = [];
+    let uploadedBase64Image = '';
 
     window.addEventListener('DOMContentLoaded', async () => {
       await checkUserSession();
       await fetchProducts();
       await fetchSiteReviews();
+      checkPaymentCallback();
     });
+
+    function checkPaymentCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('payment') === 'success') {
+        alert('Payment completed successfully! Your order has been placed.');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (urlParams.get('payment') === 'cancelled') {
+        alert('Payment was cancelled.');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    // IMAGE FILE UPLOAD CONVERSION TO BASE64
+    function handleImageFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedBase64Image = e.target.result;
+        const preview = document.getElementById('image-preview');
+        const container = document.getElementById('image-preview-container');
+        preview.src = uploadedBase64Image;
+        container.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
 
     async function checkUserSession() {
       if (!supabaseClient) return;
@@ -549,8 +590,6 @@
 
     // FETCH PRODUCTS CATALOG
     async function fetchProducts() {
-      const grid = document.getElementById('product-grid');
-      
       try {
         if (!supabaseClient) throw new Error('Supabase client offline');
         
@@ -660,14 +699,18 @@
           })
         });
 
+        if (!response.ok) {
+          throw new Error(`Server returned HTTP ${response.status}`);
+        }
+
         const resData = await response.json();
         if (resData.checkoutUrl) {
           window.location.href = resData.checkoutUrl;
         } else {
-          alert('Failed to initiate PayMongo session: ' + (resData.error || 'Backend service unavailable'));
+          alert('Failed to initiate PayMongo session: ' + (resData.error || 'Backend service error'));
         }
       } catch (err) {
-        alert('Checkout server error: Ensure backend server is running on localhost:5000');
+        alert('Checkout Server Error: Please ensure your PayMongo backend server or Vercel serverless API route (/api/create-checkout) is deployed and accessible.');
       }
     }
 
@@ -704,7 +747,7 @@
         alert('Thank you for sharing your experience!');
         document.getElementById('site-review-form').reset();
         setSiteStarRating(5);
-        fetchSiteReviews();
+        await fetchSiteReviews();
       } catch (err) {
         alert('Database query error: ' + err.message);
       }
@@ -798,7 +841,6 @@
 
       const typingId = appendGeminiMessage('bot', 'Thinking...');
 
-      // Smart local catalog assistant
       const getLocalResponse = (query) => {
         const q = query.toLowerCase();
         if (q.includes('iot') || q.includes('wifi') || q.includes('wi-fi') || q.includes('board')) {
@@ -810,41 +852,19 @@
         return "I recommend checking out our available store catalog for microcontrollers, sensors, and components for your circuit build!";
       };
 
-      // Skip API call if using placeholder key
-      if (!GEMINI_API_KEY || GEMINI_API_KEY === 'AQ.Ab8RN6JMGNN0yc9TTbvltmeIGbT1msT9gR-GBqXtzTti6Zrczg') {
-        setTimeout(() => {
-          removeGeminiMessage(typingId);
-          appendGeminiMessage('bot', getLocalResponse(userMessage));
-        }, 400);
-        return;
-      }
-
-      // Live API Request with automatic local fallback on auth failure
       try {
-        const storeContext = cachedProducts.length > 0 
-          ? cachedProducts.map(p => `- ${p.title} (${p.category}): ₱${p.price} - ${p.description}`).join('\n')
-          : 'Catalog: ARK-9000 Neural Processor (₱1450), ESP32 Wi-Fi/BT Module (₱320).';
-
-        const promptText = `You are the AI Assistant for "Arkhalis's Electronics", a Philippine marketplace.
-Answer concisely and recommend electronic components from this store catalog when helpful:
-${storeContext}
-
-User Question: "${userMessage}"`;
-
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`${BACKEND_API_URL}/gemini-chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+          body: JSON.stringify({ message: userMessage, catalog: cachedProducts })
         });
 
-        const data = await response.json();
-        removeGeminiMessage(typingId);
-
-        if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-          appendGeminiMessage('bot', data.candidates[0].content.parts[0].text);
+        if (response.ok) {
+          const data = await response.json();
+          removeGeminiMessage(typingId);
+          appendGeminiMessage('bot', data.reply || getLocalResponse(userMessage));
         } else {
-          // Fall back gracefully if key is invalid (401)
-          console.warn('Gemini API authentication failed. Falling back to local assistant mode:', data.error);
+          removeGeminiMessage(typingId);
           appendGeminiMessage('bot', getLocalResponse(userMessage));
         }
       } catch (err) {
@@ -878,6 +898,11 @@ User Question: "${userMessage}"`;
     async function handleCreateProduct(e) {
       e.preventDefault();
       if (!currentUser || currentUserProfile?.role !== 'seller') return alert('Only sellers can list products.');
+      if (!uploadedBase64Image) return alert('Please upload a product photo from your device.');
+
+      const btn = document.getElementById('prod-submit-btn');
+      btn.innerText = 'Publishing...';
+      btn.disabled = true;
 
       const newProd = {
         seller_id: currentUser.id,
@@ -885,16 +910,25 @@ User Question: "${userMessage}"`;
         price: parseFloat(document.getElementById('prod-price').value),
         category: document.getElementById('prod-category').value,
         stock: parseInt(document.getElementById('prod-stock').value),
-        image_url: document.getElementById('prod-image').value,
+        image_url: uploadedBase64Image,
         description: document.getElementById('prod-desc').value
       };
 
-      const { error } = await supabaseClient.from('products').insert([newProd]);
-      if (error) return alert(error.message);
+      try {
+        const { error } = await supabaseClient.from('products').insert([newProd]);
+        if (error) throw error;
 
-      alert('Product listed successfully!');
-      document.getElementById('add-product-form').reset();
-      fetchProducts();
+        alert('Product listed successfully!');
+        document.getElementById('add-product-form').reset();
+        document.getElementById('image-preview-container').classList.add('hidden');
+        uploadedBase64Image = '';
+        fetchProducts();
+      } catch (err) {
+        alert('Failed to publish product: ' + err.message);
+      } finally {
+        btn.innerText = 'Publish Product';
+        btn.disabled = false;
+      }
     }
 
     async function loadSellerSales() {
