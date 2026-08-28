@@ -56,40 +56,7 @@
         <a href="#dashboard" id="nav-dashboard" class="hidden text-blue-600 hover:underline transition">Dashboard</a>
       </nav>
 
-      <!-- Reviews Section -->
-<section class="max-w-4xl mx-auto my-12 p-6 bg-white rounded-xl shadow-md">
-  <h2 class="text-2xl font-bold mb-4 text-gray-800">User Reviews & Feedback</h2>
-  
-  <!-- Submission Form -->
-  <form id="reviewForm" onsubmit="handleReviewSubmit(event)" class="space-y-4 mb-8 bg-gray-50 p-4 rounded-lg">
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Your Name</label>
-      <input type="text" id="reviewerName" required class="w-full mt-1 p-2 border rounded-md" placeholder="Enter your name">
-    </div>
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Rating</label>
-      <select id="reviewerRating" required class="w-full mt-1 p-2 border rounded-md">
-        <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
-        <option value="4">⭐⭐⭐⭐ (4/5)</option>
-        <option value="3">⭐⭐⭐ (3/5)</option>
-        <option value="2">⭐⭐ (2/5)</option>
-        <option value="1">⭐ (1/5)</option>
-      </select>
-    </div>
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Your Thoughts</label>
-      <textarea id="reviewerComment" rows="3" required class="w-full mt-1 p-2 border rounded-md" placeholder="Share your experience with ArKhalis's Electronics..."></textarea>
-    </div>
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-      Submit Review
-    </button>
-  </form>
-
-  <!-- Display Reviews List -->
-  <div id="reviewsList" class="space-y-4">
-    <p class="text-gray-500">Loading reviews...</p>
-  </div>
-</section>
+      
 
       <!-- User Auth State Buttons -->
       <div class="flex items-center gap-4">
