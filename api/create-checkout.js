@@ -44,7 +44,7 @@ export default async function handler(req, res) {
                 quantity: parseInt(quantity || 1)
               }
             ],
-            payment_method_types: ['gcash', 'paymaya', 'card'],
+            // Omitting payment_method_types lets PayMongo automatically use all active channels on your account
             success_url: `${req.headers.origin || 'https://' + req.headers.host}?payment=success`,
             cancel_url: `${req.headers.origin || 'https://' + req.headers.host}?payment=cancelled`,
             description: `Order for ${productTitle}`
