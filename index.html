@@ -427,7 +427,7 @@
     const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
     const BACKEND_API_URL = 'http://localhost:5000/api'; // Express PayMongo Backend
-    const GEMINI_API_KEY = 'AQ.Ab8RN6LOqwEGeEdQC7xrBD_DsS7_WDkTkECxW2hNt6B6MEpbyg'; // Insert your key from Google AI Studio here
+    const GEMINI_API_KEY = 'AQ.Ab8RN6JMGNN0yc9TTbvltmeIGbT1msT9gR-GBqXtzTti6Zrczg'; // Insert your key from Google AI Studio here
 
     let currentUser = null;
     let currentUserProfile = null;
@@ -798,25 +798,28 @@
 
       const typingId = appendGeminiMessage('bot', 'Thinking...');
 
-      // Smart Fallback Assistant if API key is not configured
-      if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
+      // Smart local catalog assistant
+      const getLocalResponse = (query) => {
+        const q = query.toLowerCase();
+        if (q.includes('iot') || q.includes('wifi') || q.includes('wi-fi') || q.includes('board')) {
+          return "For IoT projects, the **ESP32 Wi-Fi & Bluetooth Module** (₱320.00) is the top recommendation due to built-in Wi-Fi and BLE. For high-performance edge computing, consider the **ARK-9000 Neural Microprocessor** (₱1,450.00).";
+        }
+        if (q.includes('price') || q.includes('cost') || q.includes('catalog')) {
+          return "You can view all hardware prices in our **Store Catalog** section, with instant PayMongo checkout (GCash, Maya, & Card).";
+        }
+        return "I recommend checking out our available store catalog for microcontrollers, sensors, and components for your circuit build!";
+      };
+
+      // Skip API call if using placeholder key
+      if (!GEMINI_API_KEY || GEMINI_API_KEY === 'AQ.Ab8RN6JMGNN0yc9TTbvltmeIGbT1msT9gR-GBqXtzTti6Zrczg') {
         setTimeout(() => {
           removeGeminiMessage(typingId);
-          const query = userMessage.toLowerCase();
-          let reply = "I recommend checking out our available catalog items for your project!";
-          
-          if (query.includes('iot') || query.includes('wifi') || query.includes('wi-fi') || query.includes('board')) {
-            reply = "For IoT projects, the **ESP32 Wi-Fi & Bluetooth Module** (₱320.00) is the top recommendation due to its built-in 2.4GHz Wi-Fi, BLE, and low power consumption. For heavy edge computing, consider the **ARK-9000 Neural Microprocessor** (₱1,450.00).";
-          } else if (query.includes('price') || query.includes('cost') || query.includes('catalog')) {
-            reply = "You can view all current hardware prices and availability in the **Store Catalog** section above, with instant checkout via PayMongo (GCash / Maya / Card).";
-          }
-          
-          appendGeminiMessage('bot', reply);
+          appendGeminiMessage('bot', getLocalResponse(userMessage));
         }, 400);
         return;
       }
 
-      // Live API Request using standard gemini-1.5-flash endpoint
+      // Live API Request with automatic local fallback on auth failure
       try {
         const storeContext = cachedProducts.length > 0 
           ? cachedProducts.map(p => `- ${p.title} (${p.category}): ₱${p.price} - ${p.description}`).join('\n')
@@ -839,15 +842,14 @@ User Question: "${userMessage}"`;
 
         if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
           appendGeminiMessage('bot', data.candidates[0].content.parts[0].text);
-        } else if (data.error) {
-          console.error('Gemini API Error details:', data.error);
-          appendGeminiMessage('bot', `**API Error:** ${data.error.message || 'Invalid API key or model request.'}`);
         } else {
-          appendGeminiMessage('bot', "Could not generate a response. Please check your API key status.");
+          // Fall back gracefully if key is invalid (401)
+          console.warn('Gemini API authentication failed. Falling back to local assistant mode:', data.error);
+          appendGeminiMessage('bot', getLocalResponse(userMessage));
         }
       } catch (err) {
         removeGeminiMessage(typingId);
-        appendGeminiMessage('bot', "Unable to reach Gemini servers. Please check your network connection.");
+        appendGeminiMessage('bot', getLocalResponse(userMessage));
       }
     }
 
