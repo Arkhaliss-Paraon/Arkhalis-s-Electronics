@@ -1,50 +1,74 @@
-const { createClient } = require('@supabase/supabase-js');
+// api/create-checkout.js
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !supabaseServiceKey) {
-    return res.status(500).json({ error: 'Supabase Server Credentials Missing' });
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
-  const event = req.body;
-
   try {
-    if (event.data && event.data.attributes.type === 'checkout_session.payment.paid') {
-      const sessionData = event.data.attributes.data.attributes;
-      const metadata = sessionData.metadata;
-      const checkoutSessionId = event.data.attributes.data.id;
+    const { productTitle, amount, buyerId, sellerId, productId, quantity } = req.body;
 
-      if (metadata && metadata.buyer_id && metadata.product_id) {
-        // Insert paid order record into Supabase
-        const { data, error } = await supabase.from('orders').insert([
-          {
-            buyer_id: metadata.buyer_id,
-            seller_id: metadata.seller_id,
-            product_id: metadata.product_id,
-            quantity: parseInt(metadata.quantity),
-            total_amount: parseFloat(metadata.total_amount),
-            status: 'paid',
-            paymongo_checkout_id: checkoutSessionId
-          }
-        ]);
+    // Pulls the secret key securely from Vercel Environment Variables
+    const PAYMONGO_SECRET_KEY = process.env.PAYMONGO_SECRET_KEY;
 
-        if (error) {
-          console.error('Supabase DB Insert Error:', error);
-          return res.status(500).json({ error: error.message });
-        }
-      }
+    if (!PAYMONGO_SECRET_KEY) {
+      return res.status(500).json({ error: 'PAYMONGO_SECRET_KEY is not configured on Vercel' });
     }
 
-    return res.status(200).json({ received: true });
+    const options = {
+      method: 'POST',
+      headers: {
+        accept: 'json',
+        'content-type': 'application/json',
+        authorization: `Basic ${Buffer.from(PAYMONGO_SECRET_KEY + ':').toString('base64')}`
+      },
+      body: JSON.stringify({
+        data: {
+          attributes: {
+            line_items: [
+              {
+                currency: 'PHP',
+                amount: Math.round(parseFloat(amount) * 100), // Convert to centavos
+                description: productTitle,
+                name: productTitle,
+                quantity: parseInt(quantity || 1)
+              }
+            ],
+            payment_method_types: ['gcash', 'paymaya', 'card'],
+            success_url: `${req.headers.origin || 'https://' + req.headers.host}?payment=success`,
+            cancel_url: `${req.headers.origin || 'https://' + req.headers.host}?payment=cancelled`,
+            description: `Order for ${productTitle}`
+          }
+        }
+      })
+    };
+
+    const response = await fetch('https://api.paymongo.com/v1/checkout_sessions', options);
+    const data = await response.json();
+
+    if (data && data.data && data.data.attributes && data.data.attributes.checkout_url) {
+      return res.status(200).json({ checkoutUrl: data.data.attributes.checkout_url });
+    } else {
+      console.error('PayMongo Error:', data);
+      return res.status(400).json({ error: data.errors?.[0]?.detail || 'Failed to generate PayMongo checkout link' });
+    }
   } catch (err) {
-    console.error('Webhook Handling Error:', err);
-    return res.status(500).json({ error: 'Webhook processing failed' });
+    console.error('Checkout Server Exception:', err);
+    return res.status(500).json({ error: err.message });
   }
-};
+}
