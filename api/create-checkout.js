@@ -1,6 +1,5 @@
 // api/create-checkout.js
 export default async function handler(req, res) {
-  // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -44,7 +43,6 @@ export default async function handler(req, res) {
                 quantity: parseInt(quantity || 1)
               }
             ],
-            // Omitting payment_method_types lets PayMongo automatically use all active channels on your account
             success_url: `${req.headers.origin || 'https://' + req.headers.host}?payment=success`,
             cancel_url: `${req.headers.origin || 'https://' + req.headers.host}?payment=cancelled`,
             description: `Order for ${productTitle}`
