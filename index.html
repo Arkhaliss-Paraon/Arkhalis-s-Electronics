@@ -34,10 +34,9 @@
 </head>
 <body class="bg-brand-bg text-brand-text min-h-screen flex flex-col font-sans antialiased selection:bg-blue-100 selection:text-blue-900 relative">
 
-  <!-- 1. HEADER -->
+  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-      <!-- Logo -->
       <a href="#" class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-blue-700 to-sky-500 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20">
           A
@@ -47,7 +46,6 @@
         </span>
       </a>
 
-      <!-- Navigation Links -->
       <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
         <a href="#home" class="hover:text-blue-600 transition">Home</a>
         <a href="#store" class="hover:text-blue-600 transition">Store Page</a>
@@ -57,7 +55,6 @@
         <a href="#dashboard" id="nav-dashboard" class="hidden text-blue-600 hover:underline transition">Dashboard</a>
       </nav>
 
-      <!-- Auth Buttons -->
       <div class="flex items-center gap-4">
         <div id="auth-guest" class="flex gap-3">
           <button onclick="openAuthModal('login')" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Login</button>
@@ -124,7 +121,7 @@
       </div>
     </section>
 
-    <!-- REVIEWS & EXPERIENCES SECTION -->
+    <!-- REVIEWS SECTION -->
     <section id="reviews" class="py-16 bg-slate-50 border-t border-slate-200">
       <div class="max-w-7xl mx-auto px-6 space-y-10">
         <div>
@@ -136,7 +133,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <!-- SUBMIT SITE REVIEW FORM -->
           <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-fit space-y-4">
             <h3 class="text-lg font-bold text-slate-900">Share Your Experience</h3>
             <p class="text-xs text-slate-500">How was your component ordering or checkout process?</p>
@@ -168,7 +164,6 @@
             </form>
           </div>
 
-          <!-- REVIEWS LIST -->
           <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4" id="site-reviews-grid">
             <div class="col-span-full py-12 text-center text-slate-400">Loading reviews...</div>
           </div>
@@ -246,7 +241,7 @@
       </div>
     </section>
 
-    <!-- ABOUT US SECTION -->
+    <!-- ABOUT SECTION -->
     <section id="about" class="py-16 border-t border-slate-200 max-w-7xl mx-auto px-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div>
@@ -398,11 +393,11 @@
         <div>
           <label class="text-xs text-slate-600 font-medium block mb-2">Rating</label>
           <div class="flex gap-2 text-2xl text-amber-400" id="star-selector">
-            <i class="fa-regular fa-star cursor-pointer" onclick="setStarRating(1)"></i>
-            <i class="fa-regular fa-star cursor-pointer" onclick="setStarRating(2)"></i>
-            <i class="fa-regular fa-star cursor-pointer" onclick="setStarRating(3)"></i>
-            <i class="fa-regular fa-star cursor-pointer" onclick="setStarRating(4)"></i>
-            <i class="fa-regular fa-star cursor-pointer" onclick="setStarRating(5)"></i>
+            <i class="fa-solid fa-star cursor-pointer" onclick="setStarRating(1)"></i>
+            <i class="fa-solid fa-star cursor-pointer" onclick="setStarRating(2)"></i>
+            <i class="fa-solid fa-star cursor-pointer" onclick="setStarRating(3)"></i>
+            <i class="fa-solid fa-star cursor-pointer" onclick="setStarRating(4)"></i>
+            <i class="fa-solid fa-star cursor-pointer" onclick="setStarRating(5)"></i>
           </div>
           <input type="hidden" id="review-rating" value="5">
         </div>
@@ -425,10 +420,12 @@
     // CONFIGURATION
     const SUPABASE_URL = 'https://tmsgqszbznukgowfwcnk.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc2dxc3piem51a2dvd2Z3Y25rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3ODQzNDQsImV4cCI6MjEwMzM2MDM0NH0.psg4eFLo6AdoCTCFJ7M1ZdqVzun81xgzz_ne5TKGWww';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // FIX 1: Rename client instance to prevent shadowing the global `supabase` object from CDN
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const BACKEND_API_URL = 'http://localhost:5000/api'; // Express PayMongo Backend
-    const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY';
+    const GEMINI_API_KEY = 'AQ.Ab8RN6I4x6ztVDmYZ7xYXM8mSlbtdFSNOjJE_wwyjLAqm4YcGw';
 
     let currentUser = null;
     let currentUserProfile = null;
@@ -443,10 +440,10 @@
     });
 
     async function checkUserSession() {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
         currentUser = session.user;
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+        const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
         currentUserProfile = profile;
         updateUIForLoggedInUser();
       } else {
@@ -506,16 +503,27 @@
         const gcash = document.getElementById('auth-gcash').value;
         const role = document.getElementById('auth-role').value;
 
-        const { error } = await supabase.auth.signUp({
+        const { data: authData, error } = await supabaseClient.auth.signUp({
           email,
           password,
           options: { data: { full_name: fullName, gcash_number: gcash, role: role } }
         });
 
         if (error) return alert(error.message);
+
+        // FIX 2: Explicit profile creation in database table on registration
+        if (authData?.user) {
+          await supabaseClient.from('profiles').upsert([{
+            id: authData.user.id,
+            full_name: fullName,
+            gcash_number: gcash,
+            role: role
+          }]);
+        }
+
         alert('Registration successful! Please sign in.');
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) return alert(error.message);
       }
 
@@ -524,7 +532,7 @@
     }
 
     async function handleLogout() {
-      await supabase.auth.signOut();
+      await supabaseClient.auth.signOut();
       currentUser = null;
       currentUserProfile = null;
       updateUIForLoggedOutUser();
@@ -532,7 +540,7 @@
 
     // FETCH PRODUCTS CATALOG
     async function fetchProducts() {
-      const { data: products, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+      const { data: products, error } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
       const grid = document.getElementById('product-grid');
       
       if (error || !products || products.length === 0) {
@@ -542,32 +550,37 @@
 
       cachedProducts = products;
 
-      grid.innerHTML = products.map(p => `
-        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition flex flex-col justify-between">
-          <div>
-            <img src="${p.image_url}" alt="${p.title}" class="w-full h-48 object-cover bg-slate-100" onError="this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80'">
-            <div class="p-5 space-y-3">
-              <div class="flex justify-between items-start">
-                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">${p.category}</span>
-                <span class="text-xs text-slate-500 font-medium">Stock: ${p.stock}</span>
+      grid.innerHTML = products.map(p => {
+        // FIX 3: Escape single quotes for safe string interpolation inside inline onclick events
+        const escapedTitle = p.title.replace(/'/g, "\\'");
+        
+        return `
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition flex flex-col justify-between">
+            <div>
+              <img src="${p.image_url}" alt="${p.title}" class="w-full h-48 object-cover bg-slate-100" onError="this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80'">
+              <div class="p-5 space-y-3">
+                <div class="flex justify-between items-start">
+                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">${p.category}</span>
+                  <span class="text-xs text-slate-500 font-medium">Stock: ${p.stock}</span>
+                </div>
+                <h3 class="font-bold text-slate-900 text-lg">${p.title}</h3>
+                <p class="text-slate-600 text-xs line-clamp-2">${p.description}</p>
               </div>
-              <h3 class="font-bold text-slate-900 text-lg">${p.title}</h3>
-              <p class="text-slate-600 text-xs line-clamp-2">${p.description}</p>
+            </div>
+            <div class="p-5 pt-0 space-y-3">
+              <div class="text-xl font-black font-mono text-blue-600">₱${parseFloat(p.price).toFixed(2)}</div>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="triggerPayMongoCheckout('${p.id}', '${escapedTitle}', ${p.price}, '${p.seller_id}')" class="py-2.5 px-3 bg-blue-600 text-white font-bold text-xs rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1 shadow-sm">
+                  <i class="fa-solid fa-credit-card"></i> PayMongo
+                </button>
+                <button onclick="openReviewModal('${p.id}', '${escapedTitle}')" class="py-2.5 px-3 bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-xs rounded-lg hover:bg-slate-200 transition flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-star text-amber-400"></i> Reviews
+                </button>
+              </div>
             </div>
           </div>
-          <div class="p-5 pt-0 space-y-3">
-            <div class="text-xl font-black font-mono text-blue-600">₱${parseFloat(p.price).toFixed(2)}</div>
-            <div class="grid grid-cols-2 gap-2">
-              <button onclick="triggerPayMongoCheckout('${p.id}', '${p.title}', ${p.price}, '${p.seller_id}')" class="py-2.5 px-3 bg-blue-600 text-white font-bold text-xs rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1 shadow-sm">
-                <i class="fa-solid fa-credit-card"></i> PayMongo
-              </button>
-              <button onclick="openReviewModal('${p.id}', '${p.title}')" class="py-2.5 px-3 bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-xs rounded-lg hover:bg-slate-200 transition flex items-center justify-center gap-1">
-                <i class="fa-solid fa-star text-amber-400"></i> Reviews
-              </button>
-            </div>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     // PAYMONGO CHECKOUT TRIGGER
@@ -622,7 +635,7 @@
       const title = document.getElementById('site-review-title').value;
       const comment = document.getElementById('site-review-comment').value;
 
-      const { error } = await supabase.from('site_reviews').insert([{
+      const { error } = await supabaseClient.from('site_reviews').insert([{
         user_id: currentUser.id,
         rating: selectedSiteRating,
         title: title,
@@ -639,7 +652,7 @@
 
     async function fetchSiteReviews() {
       const grid = document.getElementById('site-reviews-grid');
-      const { data: reviews, error } = await supabase
+      const { data: reviews, error } = await supabaseClient
         .from('site_reviews')
         .select('*, profiles(full_name, role)')
         .order('created_at', { ascending: false });
@@ -695,7 +708,7 @@
       appendGeminiMessage('user', userMessage);
       inputEl.value = '';
 
-      const typingId = appendGeminiMessage('bot', 'Thinking...', true);
+      const typingId = appendGeminiMessage('bot', 'Thinking...');
 
       try {
         const storeContext = cachedProducts.length > 0 
@@ -762,7 +775,7 @@ Catalog Context:\n${storeContext}\n\nUser Question: "${userMessage}"`;
         description: document.getElementById('prod-desc').value
       };
 
-      const { error } = await supabase.from('products').insert([newProd]);
+      const { error } = await supabaseClient.from('products').insert([newProd]);
       if (error) return alert(error.message);
 
       alert('Product listed successfully!');
@@ -771,7 +784,7 @@ Catalog Context:\n${storeContext}\n\nUser Question: "${userMessage}"`;
     }
 
     async function loadSellerSales() {
-      const { data: sales } = await supabase.from('orders').select('*, products(title)').eq('seller_id', currentUser.id);
+      const { data: sales } = await supabaseClient.from('orders').select('*, products(title)').eq('seller_id', currentUser.id);
       const rows = document.getElementById('seller-sales-rows');
       if (!sales || sales.length === 0) {
         rows.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No sales recorded yet.</td></tr>`;
@@ -790,7 +803,7 @@ Catalog Context:\n${storeContext}\n\nUser Question: "${userMessage}"`;
     }
 
     async function loadBuyerOrders() {
-      const { data: orders } = await supabase.from('orders').select('*, products(title)').eq('buyer_id', currentUser.id);
+      const { data: orders } = await supabaseClient.from('orders').select('*, products(title)').eq('buyer_id', currentUser.id);
       const rows = document.getElementById('buyer-order-rows');
       if (!orders || orders.length === 0) {
         rows.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No orders placed yet.</td></tr>`;
@@ -835,7 +848,7 @@ Catalog Context:\n${storeContext}\n\nUser Question: "${userMessage}"`;
       const prodId = document.getElementById('review-product-id').value;
       const comment = document.getElementById('review-comment').value;
 
-      const { error } = await supabase.from('reviews').insert([{
+      const { error } = await supabaseClient.from('reviews').insert([{
         product_id: prodId,
         user_id: currentUser.id,
         rating: selectedRating,
@@ -849,7 +862,7 @@ Catalog Context:\n${storeContext}\n\nUser Question: "${userMessage}"`;
     }
 
     async function loadProductReviews(prodId) {
-      const { data: reviews } = await supabase.from('reviews').select('*, profiles(full_name)').eq('product_id', prodId);
+      const { data: reviews } = await supabaseClient.from('reviews').select('*, profiles(full_name)').eq('product_id', prodId);
       const container = document.getElementById('modal-reviews-list');
       if (!reviews || reviews.length === 0) {
         container.innerHTML = `<p class="text-xs text-slate-400">No reviews yet for this item.</p>`;
